@@ -1,0 +1,70 @@
+
+<!doctype html>
+<html>
+<head>
+    <title>Boxnet</title>
+    <style>
+        * {
+        }
+
+        body {
+            font: 14px Helvetica, Arial;
+        }
+
+        #score {
+            font-size: 50px;
+            color: darkblue;
+            font-weight: bold;
+            padding: 20px;
+        }
+
+        #players {
+            border: 1px solid black;
+            width: 200px;
+            padding: 10px;
+        }
+
+            #players .player {
+                height: 50px;
+                font-weight: bold;
+                font-size: 20px;
+            }
+    </style>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/Tile.js"></script>
+    <script src="js/DrawableTile.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/models/InputModel.js"></script>
+    <script src="js/models/Models.js"></script>
+    <script src="js/DrawableUnit.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+</head>
+<body>
+    <h1>Boxnet</h1>
+
+    <div id="login">
+       <!-- <input id="input-name" />-->
+        <input id="input-lobby" />
+        <button id="btn-login">Login</button><br />
+    </div>
+
+    <div id="lobby">
+        <div id="gameInfo"></div>
+        <div id="players">
+            <div class="player">Djulz</div>
+        </div>
+        <button id="btn-ready">Ready</button><br />
+    </div>
+
+    <div id="loading">
+        <h2>Loading...</h2>
+    </div>
+    
+    <div id="game">
+        <canvas id="canvas" width="500" height="300" style="border:1px solid #d3d3d3;">
+            Your browser does not support the HTML5 canvas tag.
+        </canvas>
+    </div>
+</body>
+</html>
