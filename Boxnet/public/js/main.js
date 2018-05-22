@@ -8,16 +8,13 @@ function randomWithRange(min, max)
 var types = ["void", "grass", "sand", "mountain"];
 
 var tileSize = 20;
-var tilesX = 0;
-var tilesY = 0;
 var startPos = null;
 var bounds = null;
 var brushMoving = true;
 var ctx;
 
-//var tiles = new Tile[50,50]
-var tiles = [];
-var units = [];
+var map;
+var nextUnits = [];
 var socket;
 
 var GameState = {
@@ -112,20 +109,16 @@ function initSocket(ctx) {
         newState(GameState.Loading);
     }); 
 
-    socket.on("map", (data) => {
+    socket.on("loadingData", (data) => {
         console.log(data);
 
+        //Next units
+        updateNextUnits(data.nextUnits);
+
         //Init map
-        this.tilesX = data.width;
-        this.tilesY = data.height;
+        map = new DrawableMap(data.map.width, data.map.height);
         adaptTileSize(ctx);
-        for (var x = 0; x < data.width; x++) {
-            tiles[x] = [];
-            for (var y = 0; y < data.height; y++) {
-                var tile = new DrawableTile(data.tiles[x][y]);
-                tiles[x][y] = tile;
-            }
-        }
+        map.readData(data);
 
         socket.emit("msg", "loaded");
     });
@@ -136,30 +129,52 @@ function initSocket(ctx) {
     }); 
 
     socket.on("tileUpdate", (data) => {
-        console.log("tileUpdate");
-        tiles[data.x][data.y].typeString = data.type;
+        console.log("tileUpdate", data);
+        map.updateTile(data.x, data.y, data.type);
     });
 
     socket.on("unitAdd", (data) => {
         console.log("unitAdd", data);
         var unit = new DrawableUnit(data.x, data.y, data.unit);
-        units.push(unit);
+        map.addUnit(unit);
 
-        if (unit.owner == myId) { //If my unit
-            if (unit.type == "core") {
+        if (unit.unitModel.owner == myId) { //If my unit
+            if (unit.unitModel.type == "core") {
                 startPos = { x: data.x, y: data.y };
             }
 
             this.bounds = getBounds(this.myId);
-            brushX = this.bounds.minX;
-            brushY = this.bounds.minY;
+            brushX = data.x
+            brushY = data.y;
+            //brushX = this.bounds.minX;
+            //brushY = this.bounds.minY;
         }
+    });
+
+    socket.on("unitRemove", (data) => {
+        console.log("unitRemove", data);
+        map.removeUnit(data.unit);
+    });
+
+    socket.on("unitUpdate", (data) => {
+        console.log("unitUpdate", data);
+        map.updateUnit(data);
+    });
+
+    socket.on("nextUnits", (data) => {
+        console.log("nextUnits");
+        updateNextUnits(data);
     });
 }
 
+function updateNextUnits(units) {
+    this.nextUnits = units;
+    $("#nextUnits").text(units);
+}
+
 function adaptTileSize(ctx) {
-    var xSize = Math.floor(ctx.canvas.width / tilesX);
-    var ySize = Math.floor(ctx.canvas.height / tilesY);
+    var xSize = Math.floor(ctx.canvas.width / map.width);
+    var ySize = Math.floor(ctx.canvas.height / map.height);
     this.tileSize = Math.min(xSize, ySize);
     console.log("setting tilesize to ", this.tileSize);
 }
@@ -184,8 +199,11 @@ function brushClick() {
 
 function handleClick(x, y, dir) {
     console.log("clicked ", x, y, dir);
-    console.log(tiles[x][y]);
-    socket.emit("input", new InputModel(x, y, dir));
+    console.log(map.tiles[x][y]);
+    if (map.tiles[x][y].typeString != "mountain") 
+        socket.emit("input", new InputModel(x, y, dir));
+    brushXVel *= -1;
+    brushYVel *= -1;
 }
 
 function getBounds(owner) {
@@ -196,13 +214,13 @@ function getBounds(owner) {
         maxY: startPos.y
     };
 
-    for (var u of this.units) {
-        if (u.owner == owner)
+    for (var u of this.map.units) {
+        if (u.unitModel.owner == owner)
         {
             bounds.minX = Math.min(Math.max(0, u.x - 3), bounds.minX);
-            bounds.maxX = Math.max(Math.min(tilesX - 1, u.x + 3), bounds.maxX);
+            bounds.maxX = Math.max(Math.min(map.width - 1, u.x + 3), bounds.maxX);
             bounds.minY = Math.min(Math.max(0, u.y - 3), bounds.minY);
-            bounds.maxY = Math.max(Math.min(tilesY - 1, u.y + 3), bounds.maxY);
+            bounds.maxY = Math.max(Math.min(map.height - 1, u.y + 3), bounds.maxY);
         }
     }
 
@@ -245,14 +263,8 @@ function draw(ctx) {
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    //Draw tiles
-    for (var x = 0; x < tilesX; x++)
-        for (var y = 0; y < tilesY; y++)
-            tiles[x][y].draw(ctx, tileSize);
-
-    //Draw units
-    for (var u of this.units)
-        u.draw(ctx, tileSize);
+    //Draw map
+    map.draw(ctx, tileSize);
 
     //Draw bounds
     if (bounds != null) {
@@ -331,6 +343,11 @@ window.onload = function () {
 
     initSocket(ctx);
     newState(GameState.Login);
+
+    var debug = $("#debug");
+    setInterval(() => {
+        $(debug).text("brush(" + brushX + "," + brushY + ")");
+    }, 100);
 
     //join lobby
     $("#btn-login").click(() => {

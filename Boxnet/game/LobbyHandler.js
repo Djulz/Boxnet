@@ -7,7 +7,7 @@ var DMath = require('./DMath');
 class Lobby {
     constructor(name) {
         this.name = name;
-        this.game = new Game(new Map(50, 30));
+        this.game = new Game(this, new Map(50, 30));
         this.players = [];
         this.bIsLoading = false;
         this.bIsPlaying = false;
@@ -18,15 +18,23 @@ class Lobby {
         socket.lobby = this;
         var player = new Player(socket, socket.id.substring(0,6));
         player.setStartPos(DMath.getRandomInt(0, this.game.map.width), DMath.getRandomInt(0, this.game.map.height));
+        socket.join(this.name);
         this.players.push(player);
-        player.lobbyPlayerId = this.players.length - 1;
-        this.game.map.addUnit(player.playerStart.x, player.playerStart.y, 0, new Unit.Core(), player);
+        player.lobbyPlayerId = this.getEmptyId();
+        this.game.addUnit(player.playerStart.x, player.playerStart.y, 0, player, new Unit.Core());
+    }
+
+    getEmptyId() {
+        var id = 0;
+        while (this.players.some(x => x.lobbyPlayerId == id))
+            id++;
+        return id;
     }
 
     onInput(socket, data) {
-        console.log("input data", data);
-        var growTile = socket.player.lobbyPlayerId == 0 ? "sand" : "mountain";
-        this.game.map.addUnit(data.x, data.y, data.dir, new Unit.Grower("circle", growTile, 3, 1000), socket.player);
+        console.log("input data", data);       
+        this.game.addNextUnit(data.x, data.y, data.dir, socket.player);
+        socket.emit("nextUnits", socket.player.nextUnits);
     }
 
     update(ms) {
@@ -65,7 +73,10 @@ class Lobby {
                         this.bIsLoading = true;
                         for (var p of this.players) {
                             p.emit("loading", { playerId: p.lobbyPlayerId });
-                            p.emit("map", this.game.map.Model);
+                            p.emit("loadingData", {
+                                map: this.game.map.Model,
+                                nextUnits: p.nextUnits
+                            });
                         }
                     }
                 }

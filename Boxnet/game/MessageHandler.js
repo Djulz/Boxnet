@@ -10,6 +10,10 @@ class MessageHandler {
             this.lobbyHandler.onInput(socket, data);
         });
 
+        //socket.on("data", (data) => {
+        //    this.lobbyHandler.onData(socket, data.type, data.data);
+        //});
+
         socket.on("join", (data) => {
             this.lobbyHandler.onJoin(socket, data);
         });

@@ -38,6 +38,7 @@
     <script src="js/models/InputModel.js"></script>
     <script src="js/models/Models.js"></script>
     <script src="js/DrawableUnit.js"></script>
+    <script src="js/DrawableMap.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 </head>
 <body>
@@ -45,7 +46,7 @@
 
     <div id="login">
        <!-- <input id="input-name" />-->
-        <input id="input-lobby" />
+        <input id="input-lobby" value="test"/>
         <button id="btn-login">Login</button><br />
     </div>
 
@@ -65,6 +66,8 @@
         <canvas id="canvas" width="500" height="300" style="border:1px solid #d3d3d3;">
             Your browser does not support the HTML5 canvas tag.
         </canvas>
+        <div id="nextUnits"></div>
+        <div id="debug"></div>
     </div>
 </body>
 </html>

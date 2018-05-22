@@ -16,10 +16,14 @@ class TileModel {
 }
 
 class UnitModel {
-    constructor(type, owner) {
+    constructor(type, id, owner, hp) {
         this.type = type;
+        this.id = id;
         this.owner = owner;
+        this.hp = hp;
     }
+
+
 }
 
 class PlayerModel {

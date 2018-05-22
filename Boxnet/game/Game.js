@@ -1,7 +1,8 @@
 class Game {
-    constructor(map) {
+    constructor(lobby, map) {
         this.map = map;
         this.map.game = this;
+        this.lobby = lobby;
         this.events = [];
     }
 
@@ -18,6 +19,19 @@ class Game {
 
     onEvent(event, data) {
         this.events.push({ event: event, data: data });
+    }
+
+    onUnitDied(unit) {
+        this.map.removeUnit(unit);
+    }
+
+    addNextUnit(x, y, dir, owner) {
+        var unit = owner.getNextUnit();
+        this.map.addUnit(x, y, dir, unit, owner);
+    }
+
+    addUnit(x, y, dir, owner, unit) {
+        this.map.addUnit(x, y, dir, unit, owner);
     }
 }
 

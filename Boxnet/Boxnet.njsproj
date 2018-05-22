@@ -31,10 +31,12 @@
     <Compile Include="game\DMath.js" />
     <Compile Include="game\Game.js" />
     <Compile Include="game\Map.js" />
+    <Compile Include="game\MapGenerator.js" />
     <Compile Include="game\MessageHandler.js" />
     <Compile Include="game\Player.js" />
     <Compile Include="game\Unit.js" />
     <Compile Include="game\Units\Grower.js" />
+    <Compile Include="public\js\DrawableMap.js" />
     <Compile Include="public\js\models\Models.js" />
     <Compile Include="public\js\Tile.js" />
     <Compile Include="public\js\models\InputModel.js" />

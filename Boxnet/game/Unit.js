@@ -1,4 +1,5 @@
 var Models = require('./../public/js/models/Models');
+var DMath = require('./DMath');
 
 var Direction = Object.freeze(
     {
@@ -13,6 +14,8 @@ class Unit {
         this.name = name;
         this.dir = Direction.up;
         this.owner = null;
+        this.hp = 100;
+        this.id = -1;
     }
 
     init(owner, dir) {
@@ -28,8 +31,24 @@ class Unit {
 
     }
 
+    takeDamage(dmg) {
+        this.hp = Math.max(this.hp - dmg, 0);
+        console.log("dmg -" + dmg, this.hp);
+        if (this.IsDead) {
+            this.die();
+        }
+    }
+
+    die() {
+        this.tile.map.game.onUnitDied(this);
+    }
+
+    get IsDead() {
+        return this.hp <= 0;
+    }
+
     get Model() {
-        return new Models.UnitModel(this.name, this.owner.lobbyPlayerId);
+        return new Models.UnitModel(this.name, this.id, this.owner.lobbyPlayerId, this.hp);
     }
 }
 
@@ -77,24 +96,80 @@ class Grower extends Unit {
             }
         }
         else if (this.growType == "circle") {
-            var tiles = this.tile.getTilesAtDistance(this.growReach);
-            tiles.sort((a, b) => {
-                if (a.dist < b.dist)
-                    return -1;
-                if (a.dist > b.dist)
-                    return 1;
-                return Math.random() < .5 ? -1 : 1;
-            });
+            var tiles = this.tile.getTilesAtDistanceFilter(this.growReach, true, [], ["mountain"]);
             for (var t of tiles) {
                 if (t.tile.typeString != this.tileToGrow) {
                     t.tile.changeType(this.tileToGrow);
-                    //console.log("grow to ", t.tile.x, t.tile.y, this.tileToGrow);
+                    console.log("grow to ", t.tile.x, t.tile.y, this.tileToGrow);
                     break;
                 }
             }
         }
     }
         
+}
+
+class Shooter extends Unit {
+    constructor(range, dmg, reloadTime) {
+        super("shooter");
+        this.range = range;
+        this.dmg = dmg;
+        this.reloadTime = reloadTime;
+        this.timeUntilNextShot = reloadTime;
+        this.target = null;
+    }
+
+    update(ms) {
+        if (this.timeUntilNextShot <= 0) {
+            this.timeUntilNextShot += this.reloadTime;
+            this.shoot();
+        }
+
+        this.timeUntilNextShot -= ms;
+    }
+
+    findTarget() {
+        var units = this.tile.getUnitsAtDistance(this.range, true);
+        var hostile = units.map(x => x.tile.units[0]).filter(x => x.owner != this.owner);//.filter(x => x.owner != this.owner);
+        var target = null;
+        for (var h of hostile) {
+            if (this.tile.map.checkLineOfSight(this.tile.x, this.tile.y, h.tile.x, h.tile.y)) {
+                target = h;
+                console.log("target accuired", target.name);
+            }
+        }
+        
+        return target;
+    }
+
+    shoot() {
+        if (this.target == null || this.target.IsDead) {
+            var newTarget = this.findTarget();
+            if (newTarget != this.target) {
+                //Found new target
+                this.target = newTarget;
+                this.tile.map.game.onEvent("unitUpdate", {
+                    type: "newTarget",
+                    unitId: this.id,
+                    targetId: this.target != null ? this.target.id : -1
+                });
+            }
+        }
+
+        if (this.target != null) {
+            this.target.takeDamage(this.dmg);
+            console.log("shooting", this.target.name);
+        }
+    }
+
+    get Model() {
+        var model = super.Model;
+        model.targetId = this.target != null ? this.target.id : -1;
+        return model;
+    }
+
+
+
 }
 
 class Core extends Unit {
@@ -106,5 +181,6 @@ class Core extends Unit {
 
 module.exports = {
     Grower: Grower,
-    Core: Core
+    Core: Core,
+    Shooter: Shooter
 };
