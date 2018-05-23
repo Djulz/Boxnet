@@ -15,12 +15,13 @@ class Lobby {
     }
 
     addPlayer(socket) {
+        console.log("addplayer");
         socket.lobby = this;
         var player = new Player(socket, socket.id.substring(0,6));
-        player.setStartPos(DMath.getRandomInt(0, this.game.map.width), DMath.getRandomInt(0, this.game.map.height));
+        player.lobbyPlayerId = this.getEmptyId();
+        player.setStartPos(this.game.map.startPoints[player.lobbyPlayerId].x, this.game.map.startPoints[player.lobbyPlayerId].y);
         socket.join(this.name);
         this.players.push(player);
-        player.lobbyPlayerId = this.getEmptyId();
         this.game.addUnit(player.playerStart.x, player.playerStart.y, 0, player, new Unit.Core());
     }
 
@@ -127,8 +128,11 @@ class LobbyHandler {
     }
 
     joinOrCreateLobby(socket, lobbyName) {
+        console.log("joinOrCreateLobby", lobbyName);
         var lobby = this.lobbies[lobbyName];
+        console.dir(this.lobbies, lobby == null);
         if (lobby == null) {
+            console.log("joinOrCreateLobby", "create");
             lobby = new Lobby(lobbyName);
             this.lobbies[lobbyName] = lobby;
         }

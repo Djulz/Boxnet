@@ -25,6 +25,10 @@ function bresenhamLine(x0, y0, x1, y1, callback) {
     }
 }
 
+function randomObjectInArray(array) {
+    return array[this.getRandomInt(0, array.length)];
+}
+
 module.exports = {
     getRandomInt: getRandomInt,
     bresenhamLine: bresenhamLine

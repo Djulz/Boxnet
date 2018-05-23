@@ -1,15 +1,24 @@
+//var DMath = require('./DMath');
 
-class DrawableTile extends Tile
-{
-    constructor(tile) {
-        super(tile.x, tile.y, tile.typeString);
+class DrawableTile {
+    constructor(x, y, typeString) {
+        this.x = x;
+        this.y = y;
+        this.typeString = typeString;
+
+        this.grassColor = this.randomObjectInArray(["#339933", "#309933", "#339930", "#339633", "#309930"]);
+        this.mntColor =   this.randomObjectInArray(["#595959", "#505959", "#595059", "#595950", "#505950"]);
     }
 
-    draw(ctx, tileSize)
-    {
+    draw(ctx, tileSize) {
         ctx.fillStyle = this.getColor();
         //console.log("drawing ", this, ctx.fillStyle, tileSize);
         ctx.fillRect(this.x * tileSize, this.y * tileSize, tileSize, tileSize);
+    }
+
+    randomObjectInArray(array) {
+        var r = Math.floor(Math.random() * array.length);
+        return array[r];
     }
 
     getColor() {
@@ -17,11 +26,11 @@ class DrawableTile extends Tile
             case "void":
                 return "#000000";
             case "grass":
-                return "#339933";
+            return this.grassColor;
             case "sand":
                 return "#ffe6b3";
             case "mountain":
-                return "#595959";
+                return this.mntColor;
         }
     }
 }

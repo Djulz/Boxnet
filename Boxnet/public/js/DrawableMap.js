@@ -12,8 +12,9 @@ class DrawableMap {
         for (var x = 0; x < data.map.width; x++) {
             this.tiles[x] = [];
             for (var y = 0; y < data.map.height; y++) {
-                var tile = new DrawableTile(data.map.tiles[x][y]);
-                this.tiles[x][y] = tile;
+                var tile = data.map.tiles[x][y];
+                var drawableTile = new DrawableTile(tile.x, tile.y, tile.typeString);
+                this.tiles[x][y] = drawableTile;
             }
         }
     }

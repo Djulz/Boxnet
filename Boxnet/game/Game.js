@@ -4,6 +4,7 @@ class Game {
         this.map.game = this;
         this.lobby = lobby;
         this.events = [];
+        this.tick = 0;
     }
 
     update(players, ms) {
@@ -15,6 +16,7 @@ class Game {
             }
 
         this.events = [];
+        this.tick++;
     }
 
     onEvent(event, data) {
@@ -27,11 +29,11 @@ class Game {
 
     addNextUnit(x, y, dir, owner) {
         var unit = owner.getNextUnit();
-        this.map.addUnit(x, y, dir, unit, owner);
+        return this.map.addUnit(x, y, dir, unit, owner);
     }
 
     addUnit(x, y, dir, owner, unit) {
-        this.map.addUnit(x, y, dir, unit, owner);
+        return this.map.addUnit(x, y, dir, unit, owner);
     }
 }
 

@@ -50,6 +50,28 @@ class MapGenerator {
             this.addCP(DMath.getRandomInt(0, this.map.width), DMath.getRandomInt(0, this.map.height), type);
     }
 
+    addStartPoints(n, wallDist, minDist) {
+        this.map.startPoints = [];
+        for (var i = 0; i < n; i++) {            
+            var iTries = 0;
+            console.log("startpooint", i, "startt");
+            while (iTries++ < 100) {
+                var tile = this.map.getRandomTile(wallDist);
+
+                this.map.startPoints.sort((a, b) => a.getDistanceTo(tile) - b.getDistanceTo(tile));
+                var closestSP = this.map.startPoints.length == 0 ? null : this.map.startPoints[0];
+
+                if (closestSP == null || tile.getDistanceTo(closestSP) > minDist) {
+                    this.map.startPoints.push(tile);
+                    console.log("startpooint", i, tile.x, tile.y);
+                    break;
+                }
+            }
+        }
+
+        return this.map.startPoints.length;
+    }
+
 
     //addMountainsCPs(n) {
     //    for (var i = 0; i < n; i++) {

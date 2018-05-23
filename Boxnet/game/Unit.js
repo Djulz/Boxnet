@@ -1,13 +1,6 @@
 var Models = require('./../public/js/models/Models');
 var DMath = require('./DMath');
-
-var Direction = Object.freeze(
-    {
-        "up": 0,
-        "right": 1,
-        "down": 2,
-        "left": 3
-    });
+var Common = require('./Common');
 
 class Unit {
     constructor(name) {
@@ -61,15 +54,25 @@ class Grower extends Unit {
         this.growType = growType;
         this.tileToGrow = tileToGrow;
         this.growCooldown = growPeriod;
+        this.tilesQueued = [];
+        this.iGrown = 0;
     }
 
     update(ms) {
-        if (this.growCooldown <= 0) {
+
+        if(this.tile.map.game.tick % 10 == 0)
+            this.queueTiles();
+
+        while (this.growCooldown <= 0) {
             this.growCooldown += this.growPeriod;
             this.grow();
         }
 
         this.growCooldown -= ms;
+    }
+
+    queueTiles() {
+        this.tilesQueued = this.tile.getTilesAtDistancePathFilter(this.growReach, true, [], ["mountain"]);
     }
 
     grow() {
@@ -96,15 +99,16 @@ class Grower extends Unit {
             }
         }
         else if (this.growType == "circle") {
-            var tiles = this.tile.getTilesAtDistanceFilter(this.growReach, true, [], ["mountain"]);
-            for (var t of tiles) {
+            for (var t of this.tilesQueued) {
                 if (t.tile.typeString != this.tileToGrow) {
                     t.tile.changeType(this.tileToGrow);
-                    console.log("grow to ", t.tile.x, t.tile.y, this.tileToGrow);
+                    //console.log("grow to ", t.tile.x, t.tile.y, this.tileToGrow);
                     break;
                 }
             }
         }
+
+        this.iGrown ++;
     }
         
 }
@@ -167,9 +171,49 @@ class Shooter extends Unit {
         model.targetId = this.target != null ? this.target.id : -1;
         return model;
     }
+}
 
+class Ticker extends Unit {
+    constructor(name, tickTime) {
+        super(name);
+        this.tickTime = tickTime;
+        this.tickCooldown = tickTime;
+    }
 
+    update(ms) {
+        if (this.tickCooldown <= 0) {
+            this.tickCooldown += this.tickTime;
+            this.tick();
+        }
+        this.tickCooldown -= ms;
+    }
 
+    tick() {
+
+    }
+}
+
+class Tunneler extends Ticker {
+    constructor(range, tunnelTime) {
+        super("tunneler", tunnelTime);
+        this.range = range;
+        this.tilesTunneled = 0;
+        this.currentTile = this.tile;
+    }
+
+    tick() {
+        //Check tile
+        var nextTile = this.currentTile.getDirection(this.dir);
+        if(this.tilesTunneled < this.range && nextTile != null) {
+            this.tilesTunneled++;
+            this.currentTile = nextTile;
+        }
+        else if(this.tilesTunneled > 0) {
+            //Reached dest
+            var unit = this.tile.map.game.addUnit(this.currentTile.x, this.currentTile.y, this.dir, this.owner, Common.createUnit("tunneler"));
+        }
+        
+    }
 }
 
 class Core extends Unit {
@@ -182,5 +226,6 @@ class Core extends Unit {
 module.exports = {
     Grower: Grower,
     Core: Core,
-    Shooter: Shooter
+    Shooter: Shooter,
+    Tunneler = Tunneler
 };

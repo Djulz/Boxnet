@@ -4,9 +4,6 @@
 <head>
     <title>Boxnet</title>
     <style>
-        * {
-        }
-
         body {
             font: 14px Helvetica, Arial;
         }
@@ -32,13 +29,12 @@
     </style>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="js/Tile.js"></script>
-    <script src="js/DrawableTile.js"></script>
-    <script src="js/main.js"></script>
     <script src="js/models/InputModel.js"></script>
     <script src="js/models/Models.js"></script>
+    <script src="js/DrawableTile.js"></script>
     <script src="js/DrawableUnit.js"></script>
     <script src="js/DrawableMap.js"></script>
+    <script src="js/main.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 </head>
 <body>
@@ -63,7 +59,7 @@
     </div>
     
     <div id="game">
-        <canvas id="canvas" width="500" height="300" style="border:1px solid #d3d3d3;">
+        <canvas id="canvas" width="800" height="500" style="border:1px solid #d3d3d3;">
             Your browser does not support the HTML5 canvas tag.
         </canvas>
         <div id="nextUnits"></div>

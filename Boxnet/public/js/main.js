@@ -1,6 +1,5 @@
 
-function randomWithRange(min, max)
-{
+function randomWithRange(min, max) {
     var range = (max - min);
     return Math.round(Math.random() * range) + min;
 }
@@ -37,6 +36,7 @@ var brushDir = 0;
 var brushXVel = 1;
 var brushYVel = 1;
 var brushActive = "";
+var debug = true;
 
 function newState(state) {
 
@@ -74,10 +74,16 @@ function onEnterGame() {
     }, 100);
 
     var canvas = $("canvas");
-    canvas.click(function () {
-        brushMoving = false;
-        brushClick();
-        brushMoving = true;
+    canvas.click(function (ev) {
+        if (debug == true) {
+            var x = Math.floor(ev.offsetX / tileSize);
+            var y = Math.floor(ev.offsetY / tileSize);
+            handleClick(x, y, 0);
+        } else {
+            brushMoving = false;
+            brushClick();
+            brushMoving = true;
+        }
     });
 
     document.addEventListener('keydown', (event) => {
@@ -86,19 +92,18 @@ function onEnterGame() {
 }
 
 function initSocket(ctx) {
-    
+
     socket = io();
     socket.on('connect', () => {
-        console.log("connect"); 
-    });   
+        console.log("connect");
+    });
 
     socket.on("lobbyData", (data) => {
-        console.log(data);
+        //console.log(data);
         newState(GameState.Lobby);
         $("#gameInfo").text(data.name);
         $("#lobby #players").empty();
-        for (var p of data.players) 
-        {
+        for (var p of data.players) {
             $("#lobby #players").append('<div class="player">' + p.name + ' (' + p.faction + ')</div>');
         }
     });
@@ -107,7 +112,7 @@ function initSocket(ctx) {
         console.log("loading");
         this.myId = data.playerId;
         newState(GameState.Loading);
-    }); 
+    });
 
     socket.on("loadingData", (data) => {
         console.log(data);
@@ -126,10 +131,10 @@ function initSocket(ctx) {
     socket.on('play', () => {
         console.log("play");
         newState(GameState.Game);
-    }); 
+    });
 
     socket.on("tileUpdate", (data) => {
-        console.log("tileUpdate", data);
+        //console.log("tileUpdate", data);
         map.updateTile(data.x, data.y, data.type);
     });
 
@@ -200,7 +205,7 @@ function brushClick() {
 function handleClick(x, y, dir) {
     console.log("clicked ", x, y, dir);
     console.log(map.tiles[x][y]);
-    if (map.tiles[x][y].typeString != "mountain") 
+    if (map.tiles[x][y].typeString != "mountain")
         socket.emit("input", new InputModel(x, y, dir));
     brushXVel *= -1;
     brushYVel *= -1;
@@ -215,8 +220,7 @@ function getBounds(owner) {
     };
 
     for (var u of this.map.units) {
-        if (u.unitModel.owner == owner)
-        {
+        if (u.unitModel.owner == owner) {
             bounds.minX = Math.min(Math.max(0, u.x - 3), bounds.minX);
             bounds.maxX = Math.max(Math.min(map.width - 1, u.x + 3), bounds.maxX);
             bounds.minY = Math.min(Math.max(0, u.y - 3), bounds.minY);
@@ -242,7 +246,7 @@ function update() {
         brushY = bounds.maxY;
         brushYVel = -1;
     }
-    if (brushX <= bounds.minX ) {
+    if (brushX <= bounds.minX) {
         brushX = bounds.minX;
         brushXVel = 1;
     }
@@ -250,7 +254,7 @@ function update() {
         brushY = bounds.minY;
         brushYVel = 1;
     }
-    if(brushActive == "x")
+    if (brushActive == "x")
         brushX += brushXVel;
     if (brushActive == "y")
         brushY += brushYVel;
@@ -280,7 +284,7 @@ function draw(ctx) {
     }
 
     //Draw brush
-    
+
     if (brushActive == "x") {
         ctx.fillStyle = "#fff";
         ctx.globalAlpha = 0.2;

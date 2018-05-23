@@ -1,4 +1,4 @@
-var Tile = require('./../public/js/Tile');
+var Tile = require('./Tile');
 var Models = require('./../public/js/models/Models');
 var DMath = require('./DMath');
 var MapGenerator = require('./MapGenerator');
@@ -8,12 +8,14 @@ class Map {
         this.width = w;
         this.height = h;
         this.tiles = [];
+        this.units = [];
+        this.nextUnitId = 0;
+        this.startPoints = [];
         this.genMap(w, h);
 
         var gen = new MapGenerator(this);
         gen.generateWithCPs(20, 7);
-        this.units = [];
-        this.nextUnitId = 0;
+        gen.addStartPoints(2, 5, 5);
     }
 
     genMap(w, h) {
@@ -38,7 +40,10 @@ class Map {
                 y: y,
                 unit: unit.Model
             });
+            return unit;
         }
+
+        return null;
     }
 
     removeUnit(unit) {
@@ -76,8 +81,8 @@ class Map {
         return los;
     }
 
-    getRandomTile() {
-        return this.getTile(DMath.getRandomInt(0, this.width), DMath.getRandomInt(0, this.height));
+    getRandomTile(wallDistance = 0) {
+        return this.getTile(DMath.getRandomInt(wallDistance, this.width - wallDistance), DMath.getRandomInt(wallDistance, this.height - wallDistance));
     }
 
     get Model() {

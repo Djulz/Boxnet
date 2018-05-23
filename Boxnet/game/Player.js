@@ -22,7 +22,7 @@ class Player {
     }
 
     emit(str, data) {
-        console.log("sending", str);
+        //console.log("sending", str);
         this.socket.emit(str, data);
     }
 
@@ -42,18 +42,6 @@ class Player {
 
             this.nextUnits.push(Math.random() < 0.3 ? "shooter" : "grower");
         }
-    }
-
-    createUnit(type) {
-        if (type == "grower") {
-            var growTile = this.lobbyPlayerId == 0 ? "sand" : "mountain";
-            return new Unit.Grower("circle", growTile, 3, 1000);
-        }
-        else if (type == "shooter") {
-            return new Unit.Shooter(10, 10, 1000)
-        }
-        else
-            return new Unit.Core();
     }
 
 }
