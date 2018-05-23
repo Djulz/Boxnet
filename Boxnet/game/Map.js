@@ -30,9 +30,9 @@ class Map {
 
     addUnit(x, y, dir, unit, owner) {
         if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
-            unit.init(owner, dir);
             unit.id = this.nextUnitId++;
             this.tiles[x][y].addUnit(unit);
+            unit.onInit(owner, dir);
             this.units.push(unit);
 
             this.game.onEvent("unitAdd", {

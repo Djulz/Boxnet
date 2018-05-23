@@ -1,7 +1,5 @@
 var Common = require('./Common');
 
-var Graph = require('algorithms').Graph;
-
 class Tile {
     constructor(x, y, typeString) {
         this.x = x;
@@ -60,7 +58,7 @@ class Tile {
     getUnitsAtDistance(d, bSorted) {
         var tiles = this.getTilesAtDistance(d, bSorted);
 
-        return tiles.filter(x => x.tile.units.length > 0);
+        return tiles.filter(x => x.tile.units.length > 0 && x.tile != this).map(x => x.tile.units[0]);
     }
 
     getTilesAtDistancePathFilter(d, bSorted, includeTileFilter, excludeTileFilter) {

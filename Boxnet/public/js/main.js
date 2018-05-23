@@ -98,6 +98,8 @@ function initSocket(ctx) {
         console.log("connect");
     });
 
+    socket.on('disconnect', () => newState(GameState.Login) );
+
     socket.on("lobbyData", (data) => {
         //console.log(data);
         newState(GameState.Lobby);

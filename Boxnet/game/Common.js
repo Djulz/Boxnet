@@ -1,3 +1,5 @@
+var DMath = require('./DMath');
+
 var Direction = Object.freeze(
     {
         "up": 0,
@@ -26,23 +28,12 @@ var TileType = Object.freeze(
         }
     });
 
-function createUnit(type) {
-    switch (type) {
-        case "grower":
-            var growTile = this.lobbyPlayerId == 0 ? "sand" : "mountain";
-            return new Unit.Grower("circle", growTile, 5, 100);
-
-        case "shooter":
-            return new Unit.Shooter(10, 10, 1000);
-        case "core":
-            return new Unit.Core();
-        case "tunneler":
-            return new Unit.Tunneler(5, 1000);
-    }
+function randomObjectInArray(array) {
+    return array[DMath.getRandomInt(0, array.length)];
 }
 
 module.exports = {
-    Direction = Direction,
-    TileType = TileType,
-    createUnit = createUnit
+    Direction: Direction,
+    TileType:  TileType,
+    randomObjectInArray:  randomObjectInArray
 };

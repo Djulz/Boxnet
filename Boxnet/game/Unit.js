@@ -1,20 +1,24 @@
 var Models = require('./../public/js/models/Models');
 var DMath = require('./DMath');
 var Common = require('./Common');
+//var UnitFactory = require('./factories/UnitFactory');
 
 class Unit {
     constructor(name) {
         this.name = name;
-        this.dir = Direction.up;
+        this.dir = Common.Direction.up;
         this.owner = null;
         this.hp = 100;
         this.id = -1;
     }
 
-    init(owner, dir) {
+    onInit(owner, dir) {
         this.dir = dir;
         this.owner = owner;
+        this.init();
     }
+
+    init() {}
 
     onUpdate(ms) {
         this.update(ms);
@@ -27,6 +31,11 @@ class Unit {
     takeDamage(dmg) {
         this.hp = Math.max(this.hp - dmg, 0);
         console.log("dmg -" + dmg, this.hp);
+        this.tile.map.game.onEvent("unitUpdate", {
+            type: "dmg",
+            unitId: this.id,
+            hp: this.hp
+        });
         if (this.IsDead) {
             this.die();
         }
@@ -134,7 +143,7 @@ class Shooter extends Unit {
 
     findTarget() {
         var units = this.tile.getUnitsAtDistance(this.range, true);
-        var hostile = units.map(x => x.tile.units[0]).filter(x => x.owner != this.owner);//.filter(x => x.owner != this.owner);
+        var hostile = units.filter(x => x.owner != this.owner);//.map(x => x.tile.units[0]);//.filter(x => x.owner != this.owner)
         var target = null;
         for (var h of hostile) {
             if (this.tile.map.checkLineOfSight(this.tile.x, this.tile.y, h.tile.x, h.tile.y)) {
@@ -178,6 +187,7 @@ class Ticker extends Unit {
         super(name);
         this.tickTime = tickTime;
         this.tickCooldown = tickTime;
+        this.tickEnabled = true;
     }
 
     update(ms) {
@@ -198,10 +208,17 @@ class Tunneler extends Ticker {
         super("tunneler", tunnelTime);
         this.range = range;
         this.tilesTunneled = 0;
+        this.otherEnd = null;
+    }
+
+    init() {
         this.currentTile = this.tile;
     }
 
     tick() {
+        if(this.otherEnd != null)
+            return ;
+
         //Check tile
         var nextTile = this.currentTile.getDirection(this.dir);
         if(this.tilesTunneled < this.range && nextTile != null) {
@@ -210,9 +227,31 @@ class Tunneler extends Ticker {
         }
         else if(this.tilesTunneled > 0) {
             //Reached dest
-            var unit = this.tile.map.game.addUnit(this.currentTile.x, this.currentTile.y, this.dir, this.owner, Common.createUnit("tunneler"));
+            var unit = this.tile.map.game.addUnit(this.currentTile.x, this.currentTile.y, this.dir, this.owner, createUnit("tunneler"));
+            unit.otherEnd = this;
+            this.otherEnd = unit;
         }
-        
+    }
+
+    die() {
+        if(this.otherEnd != null && !this.otherEnd.IsDead)
+            this.otherEnd.die();
+        super.die();
+    }
+}
+
+class Quaker extends Ticker {
+    constructor(range, dmgCooldown, dmg) {
+        super("quaker", dmgCooldown);
+        this.range = range;
+        this.dmg = dmg;
+        this.hp = 300;
+    }
+
+    tick() {
+        var units = this.tile.getUnitsAtDistance(this.range);//.filter(x=> x.owner != this.owner)
+        for(var u of units)
+            u.takeDamage(this.dmg);
     }
 }
 
@@ -222,10 +261,26 @@ class Core extends Unit {
     }
 }
 
+function createUnit(type) {
+    switch (type) {
+        case "grower":
+            return new Grower("circle", "sand", 5, 100);
+        case "shooter":
+            return new Shooter(10, 10, 1000);
+        case "core":
+            return new Core();
+        case "tunneler":
+            return new Tunneler(5, 1000);
+        case "quaker":
+            return new Quaker(5, 1000, 10);
+    }
+}
+
 
 module.exports = {
     Grower: Grower,
     Core: Core,
     Shooter: Shooter,
-    Tunneler = Tunneler
+    Tunneler: Tunneler,
+    createUnit: createUnit
 };

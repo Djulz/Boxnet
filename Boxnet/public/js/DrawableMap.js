@@ -6,6 +6,8 @@ class DrawableMap {
         this.tiles = [];
         this.units = [];
         this.unitMap = [];
+        this.imgs = [];
+        this.loadImages();
     }
 
     readData(data) {
@@ -15,8 +17,27 @@ class DrawableMap {
                 var tile = data.map.tiles[x][y];
                 var drawableTile = new DrawableTile(tile.x, tile.y, tile.typeString);
                 this.tiles[x][y] = drawableTile;
+                drawableTile.map = this;
             }
         }
+    }
+
+    loadImages() {
+        this.loadImage("images/units/tunnel.png");
+        //this.loadImage('https://www.google.com/images/branding/googlelogo/1x/googlelogo_white_background_color_272x92dp.png');
+    }
+
+    loadImage(path) {
+        var img = new Image;
+        var map = this;
+        img.onload = function() {
+            map.imgs["tunneler"] = img; 
+        }
+        img.src = path;//URL.createObjectURL(path);
+    }
+
+    getImage(img) {
+        return this.imgs[img];
     }
 
     addUnit(unit) {
@@ -26,14 +47,17 @@ class DrawableMap {
     }
 
     updateUnit(data) {
-        switch (data.type) {
-            case "newTarget":
-                var unit = this.unitMap[data.unitId];
-                if (unit != null) {
+        var unit = this.unitMap[data.unitId];
+        if (unit != null) {
+            switch (data.type) {
+                case "newTarget":
                     var target = this.unitMap[data.targetId];
                     unit.target = target;
-                }
-                break;
+                    break;
+                case "dmg":
+                    unit.hp = data.hp;
+                    break;
+            }
         }
     }
 

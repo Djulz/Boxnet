@@ -1,5 +1,6 @@
 var Models = require('./../public/js/models/Models');
 var Unit = require('./Unit');
+var Common = require('./Common');
 
 class Player {
     constructor(socket, name) {
@@ -32,7 +33,7 @@ class Player {
 
     getNextUnit() {
         var unitType = this.nextUnits.shift();
-        var unit = this.createUnit(unitType);
+        var unit = Unit.createUnit(unitType);
         this.rollNextUnits(5);
         return unit;
     }
@@ -40,7 +41,8 @@ class Player {
     rollNextUnits(n) {
         while (this.nextUnits.length < n) {
 
-            this.nextUnits.push(Math.random() < 0.3 ? "shooter" : "grower");
+            var unit = Common.randomObjectInArray(["grower", "shooter", "tunneler", "quaker"]);
+            this.nextUnits.push(unit);
         }
     }
 
