@@ -1,7 +1,7 @@
 {
     "algorithm": "Rect",
     "dataFormat": "json",
-    "destPath": ".",
+    "destPath": "../../public/data",
     "encryptionKey": "",
     "epsilon": 15,
     "heuristicMask": false,
@@ -17,7 +17,7 @@
         {
             "forceSquared": false,
             "maxTextureSize": 2048,
-            "name": "hdr/",
+            "name": "",
             "pow2": false,
             "scale": 1
         }
