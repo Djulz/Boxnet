@@ -6,8 +6,8 @@ class DrawableMap {
         this.tiles = [];
         this.units = [];
         this.unitMap = [];
-        this.imgs = [];
-        this.loadImages();
+        this.spriteSheet = new SpriteSheet("./../data/spritesheet");
+        //this.loadImages();
     }
 
     readData(data) {
@@ -22,23 +22,14 @@ class DrawableMap {
         }
     }
 
-    loadImages() {
-        this.loadImage("images/units/tunnel.png");
-        //this.loadImage('https://www.google.com/images/branding/googlelogo/1x/googlelogo_white_background_color_272x92dp.png');
-    }
+    // loadImages() {
+    //     this.loadImage("images/units/tunnel.png");
+    //     //this.loadImage('https://www.google.com/images/branding/googlelogo/1x/googlelogo_white_background_color_272x92dp.png');
+    // }
 
-    loadImage(path) {
-        var img = new Image;
-        var map = this;
-        img.onload = function() {
-            map.imgs["tunneler"] = img; 
-        }
-        img.src = path;//URL.createObjectURL(path);
-    }
-
-    getImage(img) {
-        return this.imgs[img];
-    }
+    // getImage(img) {
+    //     return this.imgs[img];
+    // }
 
     addUnit(unit) {
         unit.map = this;
@@ -68,6 +59,10 @@ class DrawableMap {
 
     updateTile(x, y, type) {
         this.tiles[x][y].typeString = type;
+    }
+
+    update(ms) {
+        this.spriteSheet.update(ms);
     }
 
     draw(ctx, tileSize) {

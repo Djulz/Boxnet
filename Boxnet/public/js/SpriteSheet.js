@@ -1,11 +1,22 @@
 class SpriteSheet {
     constructor(path) {
         this.sprites = [];
-        this.readFromFile("./../data/spritesheet.json");
+        this.img = null;
+        this.readImageFromFile(path + ".png")
+        this.readJsonFromFile(path + ".json");
         this.animations = [];
     }
 
-    readFromFile(path) {
+    readImageFromFile(path) {
+        var img = new Image;
+        var that = this;
+        img.onload = function () {
+            that.img = img;
+        }
+        img.src = path;//URL.createObjectURL(path);
+    }
+
+    readJsonFromFile(path) {
         var that = this;
 
         $.getJSON(path, function (data) {
@@ -40,9 +51,28 @@ class SpriteSheet {
 
     }
 
+    update(ms) {
+        for (var a in this.animations)
+            this.animations[a].update(ms);
+    }
+
+    drawSprite(ctx, spriteName, x, y, w, h) {
+        console.log("draw sprite", spriteName);
+        var sprite = this.sprites[spriteName];
+        if (sprite)
+            sprite.draw(ctx, x, y, w, h);
+    }
+
     addAnimation(name, sprites) {
         this.animations[name] = new AnimatedSprite(sprites);
         console.log("anim", name, this.animations[name].sprites);
+    }
+
+    drawAnimation(ctx, animName, x, y, w, h) {
+        console.log("draw animation", animName);
+        var anim = this.animations[animName];
+        if (anim)
+            anim.draw(ctx, x, y, w, h);
     }
 }
 
@@ -64,13 +94,13 @@ class AnimatedSprite {
     constructor(sprites) {
         this.sprites = sprites;
         this.currentFrame = 0;
-        this._fps = 10;
+        this.fps = 2;
         this.frameTimePassed = 0;
     }
 
     set fps(i) {
         this._fps = i;
-        this._frameTime = i / 1000.0;
+        this._frameTime = 1000.0 / i;
     }
 
     get sprite() {
@@ -82,7 +112,7 @@ class AnimatedSprite {
     }
 
     nextFrame() {
-        this.setFrame(this.currentFrame++);
+        this.setFrame(this.currentFrame+1);
     }
 
     update(ms) {

@@ -7,6 +7,7 @@ function randomWithRange(min, max) {
 var types = ["void", "grass", "sand", "mountain"];
 
 var tileSize = 20;
+var tickRate = 100;
 var startPos = null;
 var bounds = null;
 var brushMoving = true;
@@ -69,9 +70,9 @@ function newState(state) {
 
 function onEnterGame() {
     setInterval(function () {
-        update();
+        update(tickRate);
         draw(ctx);
-    }, 100);
+    }, tickRate);
 
     var canvas = $("canvas");
     canvas.click(function (ev) {
@@ -233,7 +234,12 @@ function getBounds(owner) {
     return bounds;
 }
 
-function update() {
+function update(ms) {
+    updateBrush();
+    map.update(ms);
+}
+
+function updateBrush() {
     if (!brushMoving)
         return;
 

@@ -14,9 +14,10 @@ class DrawableUnit {
     draw(ctx, tileSize) {
 
         if (this.unitModel.type == "tunneler") {
-            if (this.img == null)
-                this.img = this.map.getImage(this.unitModel.type);
-            ctx.drawImage(this.img, this.x * tileSize, this.y * tileSize, tileSize, tileSize);
+            this.map.spriteSheet.drawAnimation(ctx, "drill", this.x * tileSize, this.y * tileSize, tileSize, tileSize);
+            //if (this.img == null)
+            //this.img = this.map.getImage(this.unitModel.type);
+            //ctx.drawImage(this.img, this.x * tileSize, this.y * tileSize, tileSize, tileSize);
         }
         else {
             ctx.fillStyle = this.getColor();

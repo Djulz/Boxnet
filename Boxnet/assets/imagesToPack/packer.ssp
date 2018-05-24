@@ -30,6 +30,6 @@
     "textureBorder": 0,
     "trimMode": "Rect",
     "trimSpriteNames": true,
-    "trimThreshold": 1,
+    "trimThreshold": 0,
     "webpQuality": 80
 }

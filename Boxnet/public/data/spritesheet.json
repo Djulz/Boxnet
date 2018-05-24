@@ -1,4 +1,30 @@
 {
+	"./a_drill01": {
+		"frame": {
+			"x": 130,
+			"y": 65,
+			"width": 32,
+			"height": 32
+		},
+		"sourceSize": {
+			"width": 32,
+			"height": 32
+		},
+		"rotated": false
+	},
+	"./a_drill02": {
+		"frame": {
+			"x": 130,
+			"y": 98,
+			"width": 32,
+			"height": 32
+		},
+		"sourceSize": {
+			"width": 32,
+			"height": 32
+		},
+		"rotated": false
+	},
 	"./a_grass01": {
 		"frame": {
 			"x": 0,
@@ -53,8 +79,8 @@
 	},
 	"./sand02": {
 		"frame": {
-			"x": 0,
-			"y": 130,
+			"x": 130,
+			"y": 0,
 			"width": 64,
 			"height": 64
 		},
@@ -66,7 +92,7 @@
 	},
 	"./sand03": {
 		"frame": {
-			"x": 65,
+			"x": 0,
 			"y": 130,
 			"width": 64,
 			"height": 64
@@ -79,14 +105,27 @@
 	},
 	"./tree01": {
 		"frame": {
-			"x": 130,
-			"y": 0,
-			"width": 58,
-			"height": 59
+			"x": 65,
+			"y": 130,
+			"width": 64,
+			"height": 64
 		},
 		"sourceSize": {
 			"width": 64,
 			"height": 64
+		},
+		"rotated": false
+	},
+	"./tunnel": {
+		"frame": {
+			"x": 130,
+			"y": 131,
+			"width": 32,
+			"height": 32
+		},
+		"sourceSize": {
+			"width": 32,
+			"height": 32
 		},
 		"rotated": false
 	}
