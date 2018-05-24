@@ -1,0 +1,93 @@
+{
+	"./a_grass01": {
+		"frame": {
+			"x": 0,
+			"y": 0,
+			"width": 64,
+			"height": 64
+		},
+		"sourceSize": {
+			"width": 64,
+			"height": 64
+		},
+		"rotated": false
+	},
+	"./a_grass02": {
+		"frame": {
+			"x": 65,
+			"y": 0,
+			"width": 64,
+			"height": 64
+		},
+		"sourceSize": {
+			"width": 64,
+			"height": 64
+		},
+		"rotated": false
+	},
+	"./a_grass03": {
+		"frame": {
+			"x": 0,
+			"y": 65,
+			"width": 64,
+			"height": 64
+		},
+		"sourceSize": {
+			"width": 64,
+			"height": 64
+		},
+		"rotated": false
+	},
+	"./sand01": {
+		"frame": {
+			"x": 65,
+			"y": 65,
+			"width": 64,
+			"height": 64
+		},
+		"sourceSize": {
+			"width": 64,
+			"height": 64
+		},
+		"rotated": false
+	},
+	"./sand02": {
+		"frame": {
+			"x": 0,
+			"y": 130,
+			"width": 64,
+			"height": 64
+		},
+		"sourceSize": {
+			"width": 64,
+			"height": 64
+		},
+		"rotated": false
+	},
+	"./sand03": {
+		"frame": {
+			"x": 65,
+			"y": 130,
+			"width": 64,
+			"height": 64
+		},
+		"sourceSize": {
+			"width": 64,
+			"height": 64
+		},
+		"rotated": false
+	},
+	"./tree01": {
+		"frame": {
+			"x": 130,
+			"y": 0,
+			"width": 58,
+			"height": 59
+		},
+		"sourceSize": {
+			"width": 64,
+			"height": 64
+		},
+		"rotated": false
+	}
+}
