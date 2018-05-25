@@ -9,7 +9,7 @@ class SpriteSheet {
     }
 
     get defaultSprite() {
-        return this.sprites["default"] | this.sprites[0];
+        return this.sprites["default"] || this.sprites[0];
     }
 
     readImageFromFile(path) {
@@ -46,9 +46,9 @@ class SpriteSheet {
                     anims[animName].push(sprite);
                 }
                 //Check if it has variants
-                else if (!isNan(spriteName.substring(spriteName.length - 2))) {
-                    var variant = spriteName.substring(spriteName.length - 2);
-                    this.addVariant(variant, sprite);
+                else if (!isNaN(spriteName.substring(spriteName.length - 2))) {
+                    var variant = spriteName.substring(0, spriteName.length - 2);
+                    that.addVariant(variant, sprite);
                 }
             }
 
@@ -68,7 +68,7 @@ class SpriteSheet {
     addVariant(variant, sprite) {
         if (this.variants[variant] == null)
             this.variants[variant] = [];
-        this.variants[variant].push = sprite;
+        this.variants[variant].push(sprite);
     }
 
     update(ms) {
@@ -76,9 +76,9 @@ class SpriteSheet {
             this.animations[a].update(ms);
     }
 
-    drawSprite(ctx, spriteName, x, y, w, h, variant = 0) {
+    drawSprite(ctx, spriteName, x, y, w, h, variant = -1) {
         //console.log("draw sprite", spriteName);
-        var sprite = (variant > 0) ? this.variants[variant] : this.sprites[spriteName]
+        var sprite = (variant >= 0) ? this.variants[spriteName][variant] : this.sprites[spriteName]
         if (sprite)
             sprite.draw(ctx, x, y, w, h);
         else

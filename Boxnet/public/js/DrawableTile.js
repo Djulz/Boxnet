@@ -8,11 +8,14 @@ class DrawableTile {
 
         this.grassColor = this.randomObjectInArray(["#339933", "#309933", "#339930", "#339633", "#309930"]);
         this.mntColor =   this.randomObjectInArray(["#595959", "#505959", "#595059", "#595950", "#505950"]);
-        //this.variant = Math.floor(Math.random;
+        this.variant = Math.floor(Math.random()*3);
     }
 
     draw(ctx, tileSize) {
-        this.map.spriteSheet.drawSprite(ctx, this.typeString, this.x * tileSize, this.y * tileSize, tileSize);
+        if(this.typeString == "grass" || this.typeString == "sand")
+            this.map.spriteSheet.drawSprite(ctx, this.typeString, this.x * tileSize, this.y * tileSize, tileSize, tileSize, this.variant);
+            else
+            this.map.spriteSheet.drawSprite(ctx, this.typeString + "01", this.x * tileSize, this.y * tileSize, tileSize, tileSize);
         //ctx.fillStyle = this.getColor();
         //console.log("drawing ", this, ctx.fillStyle, tileSize);
         //ctx.fillRect(this.x * tileSize, this.y * tileSize, tileSize, tileSize);

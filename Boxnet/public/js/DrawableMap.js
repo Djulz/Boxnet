@@ -47,7 +47,7 @@ class DrawableMap {
             unit.initAnimation(this.spriteSheet.getAnimation(mapAnim));
         else {
             var sprite = this.spriteSheet.getSprite(unit.unitModel.type);
-            if (sprite != null)
+            if (sprite == null)
                 sprite = this.spriteSheet.defaultSprite;
             unit.initSprite(sprite);
         }
