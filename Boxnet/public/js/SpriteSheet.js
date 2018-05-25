@@ -5,6 +5,11 @@ class SpriteSheet {
         this.readImageFromFile(path + ".png")
         this.readJsonFromFile(path + ".json");
         this.animations = [];
+        this.variants = [];
+    }
+
+    get defaultSprite() {
+        return this.sprites["default"] | this.sprites[0];
     }
 
     readImageFromFile(path) {
@@ -40,6 +45,11 @@ class SpriteSheet {
                         anims[animName] = [];
                     anims[animName].push(sprite);
                 }
+                //Check if it has variants
+                else if (!isNan(spriteName.substring(spriteName.length - 2))) {
+                    var variant = spriteName.substring(spriteName.length - 2);
+                    this.addVariant(variant, sprite);
+                }
             }
 
             //Add animations
@@ -47,8 +57,18 @@ class SpriteSheet {
                 that.addAnimation(aName, anims[aName]);
             }
         });
+    }
 
+    getVariantNum(variant) {
+        if (this.variants[variant])
+            return this.variants[variant].length;
+        return 1;
+    }
 
+    addVariant(variant, sprite) {
+        if (this.variants[variant] == null)
+            this.variants[variant] = [];
+        this.variants[variant].push = sprite;
     }
 
     update(ms) {
@@ -56,16 +76,26 @@ class SpriteSheet {
             this.animations[a].update(ms);
     }
 
-    drawSprite(ctx, spriteName, x, y, w, h) {
-        console.log("draw sprite", spriteName);
-        var sprite = this.sprites[spriteName];
+    drawSprite(ctx, spriteName, x, y, w, h, variant = 0) {
+        //console.log("draw sprite", spriteName);
+        var sprite = (variant > 0) ? this.variants[variant] : this.sprites[spriteName]
         if (sprite)
             sprite.draw(ctx, x, y, w, h);
+        else
+            this.defaultSprite.draw(ctx, x, y, w, h);
     }
 
     addAnimation(name, sprites) {
         this.animations[name] = new AnimatedSprite(sprites);
         console.log("anim", name, this.animations[name].sprites);
+    }
+
+    getAnimation(name) {
+        return this.animations[name];
+    }
+
+    getSprite(name) {
+        return this.sprites[name];
     }
 
     drawAnimation(ctx, animName, x, y, w, h) {
@@ -93,34 +123,14 @@ class Sprite {
 class AnimatedSprite {
     constructor(sprites) {
         this.sprites = sprites;
-        this.currentFrame = 0;
-        this.fps = 2;
-        this.frameTimePassed = 0;
     }
 
-    set fps(i) {
-        this._fps = i;
-        this._frameTime = 1000.0 / i;
+    getFrame(iFrame) {
+        return this.sprites[iFrame];
     }
 
-    get sprite() {
-        return this.sprites[this.currentFrame];
-    }
-
-    setFrame(i) {
-        this.currentFrame = i % this.sprites.length;
-    }
-
-    nextFrame() {
-        this.setFrame(this.currentFrame+1);
-    }
-
-    update(ms) {
-        this.frameTimePassed += ms;
-        while (this.frameTimePassed >= this._frameTime) {
-            this.frameTimePassed -= this._frameTime;
-            this.nextFrame();
-        }
+    get frameCount() {
+        return this.sprites.length;
     }
 
     draw(ctx, x, y, w, h) {

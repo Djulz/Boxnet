@@ -7,6 +7,12 @@ class DrawableMap {
         this.units = [];
         this.unitMap = [];
         this.spriteSheet = new SpriteSheet("./../data/spritesheet");
+
+        this.mapUnitToAnim = [];
+        this.mapUnitToAnim["tunneler"] = "drill";
+        this.mapUnitToAnim["quaker"] = "quaker_";
+        this.mapUnitToAnim["grower"] = "grower";
+
         //this.loadImages();
     }
 
@@ -35,6 +41,16 @@ class DrawableMap {
         unit.map = this;
         this.units.push(unit);
         this.unitMap[unit.unitModel.id] = unit;
+
+        var mapAnim = this.mapUnitToAnim[unit.unitModel.type];
+        if (mapAnim)
+            unit.initAnimation(this.spriteSheet.getAnimation(mapAnim));
+        else {
+            var sprite = this.spriteSheet.getSprite(unit.unitModel.type);
+            if (sprite != null)
+                sprite = this.spriteSheet.defaultSprite;
+            unit.initSprite(sprite);
+        }
     }
 
     updateUnit(data) {
@@ -62,7 +78,8 @@ class DrawableMap {
     }
 
     update(ms) {
-        this.spriteSheet.update(ms);
+        for (var u of this.units)
+            u.update(ms);
     }
 
     draw(ctx, tileSize) {

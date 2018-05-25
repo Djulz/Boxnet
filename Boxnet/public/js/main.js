@@ -44,6 +44,11 @@ function newState(state) {
     if (gameState == state)
         return;
 
+    //leaving game
+    if (gameState == GameState.Game) {
+        reset();
+    }
+
     gameState = state;
 
     $(divLogin).hide();
@@ -68,8 +73,12 @@ function newState(state) {
     }
 }
 
+function reset() {
+    clearInterval(this.intGameLoop);
+}
+
 function onEnterGame() {
-    setInterval(function () {
+    this.intGameLoop = setInterval(function () {
         update(tickRate);
         draw(ctx);
     }, tickRate);
@@ -87,9 +96,9 @@ function onEnterGame() {
         }
     });
 
-    document.addEventListener('keydown', (event) => {
-        brushClick();
-    });
+    // document.addEventListener('keydown', (event) => {
+    //     brushClick();
+    // });
 }
 
 function initSocket(ctx) {
@@ -99,7 +108,7 @@ function initSocket(ctx) {
         console.log("connect");
     });
 
-    socket.on('disconnect', () => newState(GameState.Login) );
+    socket.on('disconnect', () => newState(GameState.Login));
 
     socket.on("lobbyData", (data) => {
         //console.log(data);

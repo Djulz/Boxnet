@@ -1,6 +1,46 @@
 const drawPadding = .1;
 const playerColors = ["#00FF00", "#FF0000", "#FFFF00"];
 
+class AnimationData {
+    constructor(animatedSprite) {
+        this.currentFrame = 0;
+        this.fps = 2;
+        this.frameTimePassed = 0;
+        this.animatedSprite = animatedSprite;
+        this.startFrame = 0;
+        this.endFrame = animatedSprite.frameCount - 1;
+        this.pingPong = false;
+    }
+
+    set fps(i) {
+        this._fps = i;
+        this._frameTime = 1000.0 / i;
+    }
+
+    setFrame(i) {
+        this.currentFrame = i % this.animatedSprite.frameCount;
+    }
+
+    nextFrame() {
+        this.setFrame(this.currentFrame + 1);
+    }
+
+    update(ms) {
+        this.frameTimePassed += ms;
+        while (this.frameTimePassed >= this._frameTime) {
+            this.frameTimePassed -= this._frameTime;
+            this.nextFrame();
+        }
+    }
+
+    draw(ctx, x, y, w, h) {
+        var sprite = this.animatedSprite.getFrame(this.currentFrame);
+        sprite.draw(ctx, x, y, w, h);
+    }
+
+
+}
+
 class DrawableUnit {
     constructor(x, y, unitModel) {
         this.unitModel = unitModel;
@@ -8,39 +48,66 @@ class DrawableUnit {
         this.y = y;
         this.hp = unitModel.hp;
         this.target = null;
+        this.animationData = null;
+        this.sprite = null;
         //this.img = this.map.getImage(this.unitModel.type);
+    }
+
+    initAnimation(animatedSprite, anim) {
+        this.animationData = new AnimationData(animatedSprite);
+        //this.animationData.set
+    }
+
+    initSprite(sprite) {
+        this.sprite = sprite;
+    }
+
+    update(ms) {
+        if (this.animationData)
+            this.animationData.update(ms);
     }
 
     draw(ctx, tileSize) {
 
-        if (this.unitModel.type == "tunneler") {
-            this.map.spriteSheet.drawAnimation(ctx, "drill", this.x * tileSize, this.y * tileSize, tileSize, tileSize);
-            //if (this.img == null)
-            //this.img = this.map.getImage(this.unitModel.type);
-            //ctx.drawImage(this.img, this.x * tileSize, this.y * tileSize, tileSize, tileSize);
+        if (this.animationData) {
+            this.animationData.draw(ctx, this.x * tileSize, this.y * tileSize, tileSize, tileSize);
         }
         else {
-            ctx.fillStyle = this.getColor();
-            //console.log("drawing ", this, ctx.fillStyle, tileSize);
-            var padding = (tileSize * drawPadding);
-            if (this.unitModel.type == "core")
-                ctx.fillRect(this.x * tileSize + padding - tileSize, this.y * tileSize + padding - tileSize, tileSize * 3 - 2 * padding, tileSize * 3 - 2 * padding);
-            else
-                ctx.fillRect(this.x * tileSize + padding, this.y * tileSize + padding, tileSize - 2 * padding, tileSize - 2 * padding);
+            this.sprite.draw(ctx, this.x * tileSize, this.y * tileSize, tileSize, tileSize);
+        }
+        // ctx.fillStyle = this.getColor();
+        // //console.log("drawing ", this, ctx.fillStyle, tileSize);
+        // var padding = (tileSize * drawPadding);
+        // if (this.unitModel.type == "core")
+        //     ctx.fillRect(this.x * tileSize + padding - tileSize, this.y * tileSize + padding - tileSize, tileSize * 3 - 2 * padding, tileSize * 3 - 2 * padding);
+        // else
+        //     ctx.fillRect(this.x * tileSize + padding, this.y * tileSize + padding, tileSize - 2 * padding, tileSize - 2 * padding);
 
-            if (this.target != null) {
-                ctx.strokeStyle = "#ff0000";
-                ctx.beginPath();
-                ctx.moveTo((this.x + .5) * tileSize, (this.y + .5) * tileSize);
-                ctx.lineTo((this.target.x + .5) * tileSize, (this.target.y + .5) * tileSize);
-                ctx.stroke();
-            }
+        //Target
+        if (this.target != null) {
+            ctx.strokeStyle = "#ff0000";
+            ctx.beginPath();
+            ctx.moveTo((this.x + .5) * tileSize, (this.y + .5) * tileSize);
+            ctx.lineTo((this.target.x + .5) * tileSize, (this.target.y + .5) * tileSize);
+            ctx.stroke();
         }
 
         //hp
-        ctx.font = "10px Verdana";
-        ctx.fillStyle = "#000000";
-        ctx.fillText(this.hp + "", this.x * tileSize, this.y * tileSize);
+        //ctx.font = "10px Verdana";
+        //ctx.fillStyle = "#000000";
+        //ctx.fillText(this.hp + "", this.x * tileSize, this.y * tileSize);
+
+        //hp
+        if (this.hp < this.unitModel.hp) {
+            ctx.strokeStyle = "#00FF00";
+            ctx.lineWidth = "1";
+            ctx.beginPath();
+            var hpPerc = this.hp / this.unitModel.hp;
+            var inverseHalf = (1 - hpPerc) / 2;
+            ctx.moveTo((this.x + inverseHalf) * tileSize + 1, this.y * tileSize + 1);
+            ctx.lineTo((this.x + 1 - inverseHalf) * tileSize - 1, this.y * tileSize + 1);
+            ctx.stroke();
+        }
 
     }
 
