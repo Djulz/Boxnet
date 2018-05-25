@@ -3,6 +3,7 @@ var Map = require('./Map');
 var Unit = require('./Unit');
 var Player = require('./Player');
 var DMath = require('./DMath');
+var DBPlayer = require('./../models/DBPlayer');
 
 class Lobby {
     constructor(name) {

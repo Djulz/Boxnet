@@ -3,10 +3,10 @@ var Unit = require('./Unit');
 var Common = require('./Common');
 
 class Player {
-    constructor(socket, name) {
+    constructor(socket, dbPlayer) {
         this.socket = socket;
         this.socket.player = this;
-        this.name = name;
+        this.dbPlayer = dbPlayer;
         this.playerStart = null;
         this.bIsLoading = false;
         this.bIsReady = false;
@@ -20,6 +20,11 @@ class Player {
             x: x,
             y: y
         };
+    }
+
+    get name() 
+    {
+        return this.DBPlayer.name;
     }
 
     emit(str, data) {

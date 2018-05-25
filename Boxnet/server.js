@@ -5,12 +5,14 @@ var app = express();
 var passport = require('passport');
 var ensureLoggedIn = require('connect-ensure-login');
 const mongoose = require('mongoose');
+var cookieParser = require('cookie-parser');
+
 
 var LobbyHandler = require('./game/LobbyHandler');
 var MessageHandler = require('./game/MessageHandler');
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
 
-var Player;
+var DBPlayer = require('./models/DBPlayer');
 
 passport.use(new GoogleStrategy({
     clientID: "632928324174-m8i04urim2qtch6h1b9biu1lrbg3lac3.apps.googleusercontent.com",
@@ -21,10 +23,6 @@ passport.use(new GoogleStrategy({
         findOrCreate({ googleId: profile.id }, profile.displayName, function (err, user) {
             return cb(err, user);
         });
-
-
-        //return cb(null, profile);
-
     }
 ));
 
@@ -32,12 +30,12 @@ function findOrCreate(userObject, name, cb) {
     if (userObject == null || isNaN(userObject.googleId))
         cb("UserObject is not valid", userObject);
     else {
-        Player.find({ googleId: userObject.googleId }, function (err, result) {
+        DBPlayer.find({ googleId: userObject.googleId }, function (err, result) {
             console.log(result);
             if (err) return cb(err, null);
             if (result.length == 0) {
                 console.log(userObject);
-                var p = new Player({
+                var p = new DBPlayer({
                     name: name,
                     googleId: userObject.googleId,
                 });
@@ -73,6 +71,20 @@ passport.deserializeUser(function (obj, cb) {
 //};
 
 
+//DB
+mongoose.connect('mongodb://192.168.0.105/boxnet');
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function () {
+    // we're connected!
+    console.log("connected");
+
+    //Player = mongoose.model('Player', playerSchema);
+
+});
+
+
 var http = require('http').Server(app);
 //var https = require('https').Server(httpsOptions, app);
 var io = require('socket.io')(http);
@@ -80,10 +92,30 @@ var io = require('socket.io')(http);
 //var appSecure = express.createServer(httpsOptions);
 
 
+//Static
 var publicFolder = 'public';
-
 app.use(express.static(publicFolder));
-app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
+
+app.use(cookieParser());
+
+//session store
+var session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
+var sessionStore = new MongoStore({ mongooseConnection: mongoose.connection });
+app.use(session({
+    secret: 'IUsuallyLikeBananas',
+    store: sessionStore
+}));
+//app.use(session({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
+
+var passportSocketIo = require("passport.socketio");
+io.use(passportSocketIo.authorize({ //configure socket.io
+    cookieParser: cookieParser,
+    secret: 'IUsuallyLikeBananas',    // make sure it's the same than the one you gave to express
+    store: sessionStore,
+    success: onAuthorizeSuccess,  // *optional* callback on success
+    fail: onAuthorizeFail,     // *optional* callback on fail/error
+}));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -122,27 +154,6 @@ app.get('/profile',
 var tick = 0, score = 0;
 
 
-//DB
-mongoose.connect('mongodb://192.168.0.105/boxnet');
-
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function () {
-    // we're connected!
-    console.log("connected");
-    var Schema = mongoose.Schema;
-
-    var playerSchema = new Schema({
-        googleId: Number,
-        name: String,
-        mmr: { type: Number, default: 1500 },
-        gamesPlayed: { type: Number, default: 0 }
-    });
-
-    Player = mongoose.model('Player', playerSchema);
-
-});
-
 // const Cat = mongoose.model('Cat', { name: String });
 
 // const kitty = new Cat({ name: 'Zildjian' });
@@ -157,7 +168,21 @@ http.listen(41117, function () {
 var lobbyHandler = new LobbyHandler(100);
 var messageHandler = new MessageHandler(lobbyHandler);
 
+
+function onAuthorizeSuccess(data, accept) {
+    console.log('successful connection to socket.io');
+    accept(); //Let the user through
+}
+
+function onAuthorizeFail(data, message, error, accept) {
+    if (error) accept(new Error(message));
+    console.log('failed connection to socket.io:', message);
+    accept(null, false);
+}
+
 io.on('connection', function (socket) {
     console.log("hi");
+    console.log(socket.request.user);
+
     messageHandler.onConnect(socket);
 });
