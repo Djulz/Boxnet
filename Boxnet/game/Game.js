@@ -5,18 +5,37 @@ class Game {
         this.lobby = lobby;
         this.events = [];
         this.tick = 0;
+        this.isRunning = true;
     }
 
     update(players, ms) {
-        this.map.update(ms);
-        for (var p of players)
-            if (p.socket.connected) {
-                for (var ev of this.events)
-                    p.emit(ev.event, ev.data);
-            }
 
-        this.events = [];
+        if (this.isRunning) {
+            this.map.update(ms);
+            for (var p of players) {
+                p.update(ms);
+
+                if (p.socket.connected) {
+                    for (var ev of this.events)
+                        p.emit(ev.event, ev.data);
+                }
+            }
+            this.events = [];
+
+            var playersAlive = players.filter(x => x.IsAlive);
+            if (playersAlive.length == 1) {
+                this.onGameEnd(playersAlive[0]);
+                this.lobby.onGameEnd(this);
+            }
+        }
+
         this.tick++;
+    }
+
+    onGameEnd(winner) {
+        this.isRunning = false;
+        this.winner = winner;
+        console.log("game has ended, winner", this.winner.name);
     }
 
     onEvent(event, data) {

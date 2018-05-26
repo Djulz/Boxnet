@@ -3,7 +3,7 @@ var Map = require('./Map');
 var Unit = require('./Unit');
 var Player = require('./Player');
 var DMath = require('./DMath');
-var DBPlayer = require('./../models/DBPlayer');
+var Account = require('./../models/Account');
 
 class Lobby {
     constructor(name) {
@@ -15,15 +15,26 @@ class Lobby {
         this.timeAcc = 0;
     }
 
-    addPlayer(socket) {
+    addPlayer(socket, account) {
         console.log("addplayer");
-        socket.lobby = this;
-        var player = new Player(socket, socket.id.substring(0,6));
+        var player = new Player(socket, account);
         player.lobbyPlayerId = this.getEmptyId();
         player.setStartPos(this.game.map.startPoints[player.lobbyPlayerId].x, this.game.map.startPoints[player.lobbyPlayerId].y);
         socket.join(this.name);
         this.players.push(player);
-        this.game.addUnit(player.playerStart.x, player.playerStart.y, 0, player, new Unit.Core());
+    }
+
+    removePlayer(id) {
+        var player = this.getPlayer(id);
+        if (player) {
+            console.log("removing plauyer", player.name);
+            this.players = this.players.filter(x => x.account._id != id);
+        }
+        return player;
+    }
+
+    getPlayer(id) {
+        return this.players.find(x => x.account._id == id);
     }
 
     getEmptyId() {
@@ -34,9 +45,41 @@ class Lobby {
     }
 
     onInput(socket, data) {
-        console.log("input data", data);       
-        this.game.addNextUnit(data.x, data.y, data.dir, socket.player);
-        socket.emit("nextUnits", socket.player.nextUnits);
+        console.log("input data", data);
+        if (socket.player.cooldown <= 0) {
+            socket.player.onInputAddUnit();
+            this.game.addNextUnit(data.x, data.y, data.dir, socket.player);
+            socket.emit("nextUnits", {
+                nextUnits: socket.player.nextUnits,
+                cooldown: socket.player.cooldown
+            });
+        }
+        else
+            console.log("cooldown");
+    }
+
+    onLoad() {
+        //Add starting units
+        for (var p of this.players) {
+            var core = this.game.addUnit(p.playerStart.x, p.playerStart.y, 0, p, new Unit.Core());
+            p.addCore(core);
+        }
+
+        for (var p of this.players) {
+            p.emit("loading", { playerId: p.lobbyPlayerId });
+            p.emit("loadingData", {
+                map: this.game.map.Model,
+                nextUnits: p.nextUnits
+            });
+        }
+    }
+
+    onGameEnd(game) {
+        for (var p of this.players)
+            p.emit("gameEnd", {
+                winner: game.winner.name,
+                ticks: game.tick
+            });
     }
 
     update(ms) {
@@ -60,7 +103,7 @@ class Lobby {
                 }
                 else {
                     //In lobby
-                    console.log("lobby");
+                    //console.log("lobby");
                     var data = {
                         name: this.name,
                         players: this.players.map(x => x.Model)
@@ -72,14 +115,8 @@ class Lobby {
                     //Check if all players ready
                     //console.dir(this.players);
                     if (this.players.length > 0 && this.players.every(x => x.bIsReady)) {
+                        this.onLoad();
                         this.bIsLoading = true;
-                        for (var p of this.players) {
-                            p.emit("loading", { playerId: p.lobbyPlayerId });
-                            p.emit("loadingData", {
-                                map: this.game.map.Model,
-                                nextUnits: p.nextUnits
-                            });
-                        }
                     }
                 }
             }
@@ -92,6 +129,7 @@ class LobbyHandler {
     constructor(tickRate) {
         this.lobbies = [];
         this.tickRate = tickRate;
+        this.mapPlayerToLobby = [];
 
         var handler = this;
         this.updateLoop = setInterval(() => {
@@ -124,20 +162,47 @@ class LobbyHandler {
     }
 
     onInput(socket, data) {
-        if (socket.lobby)
-            socket.lobby.onInput(socket, data);
+        if (this.getLobbyFromUserId(socket.request.user._id))
+            this.getLobbyFromUserId(socket.request.user._id).onInput(socket, data);
+    }
+
+    onDisconnect(socket) {
+        if (this.getLobbyFromUserId(socket.request.user._id))
+            this.getLobbyFromUserId(socket.request.user._id).removePlayer(socket.request.user._id);
+    }
+
+    getLobbyFromUserId(id) {
+        return this.mapPlayerToLobby[id];
+    }
+
+    addLobbyToSocket(socket, lobby) {
+        this.mapPlayerToLobby[socket.request.user._id] = lobby;
     }
 
     joinOrCreateLobby(socket, lobbyName) {
         console.log("joinOrCreateLobby", lobbyName);
         var lobby = this.lobbies[lobbyName];
-        console.dir(this.lobbies, lobby == null);
+        console.log("lobbies", this.lobbies);
         if (lobby == null) {
+            //Lobby does not exist so we create
             console.log("joinOrCreateLobby", "create");
             lobby = new Lobby(lobbyName);
             this.lobbies[lobbyName] = lobby;
         }
-        lobby.addPlayer(socket);
+
+        //Check if player already is in lobby
+        var otherLobby = this.getLobbyFromUserId(socket.request.user._id);
+        if (otherLobby != null) {
+            var otherPlayer = otherLobby.removePlayer(socket.request.user._id);
+            if (otherPlayer)
+                otherPlayer.disconnect("Someone else logged in to your account");
+            else
+                console.error("could not find other player logged in")
+            console.log("Already in room");
+        }
+
+        lobby.addPlayer(socket, socket.request.user);
+        this.addLobbyToSocket(socket, lobby);
 
         //socket.emit("map", lobby.game.map.Model);
         //console.log("sent map", lobby.game.map);

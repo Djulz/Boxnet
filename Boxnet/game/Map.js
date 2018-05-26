@@ -48,9 +48,8 @@ class Map {
 
     removeUnit(unit) {
         unit.tile.removeUnit(unit);
-        console.log("removing unit", unit, this.units.length);
+        console.log("removing unit", unit.name, unit.id);
         this.units = this.units.filter(x => x != unit);
-        console.log(this.units.length);
 
         this.game.onEvent("unitRemove", {
             unit: unit.Model

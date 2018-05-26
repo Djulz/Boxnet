@@ -36,7 +36,7 @@ class Unit {
             unitId: this.id,
             hp: this.hp
         });
-        if (this.IsDead) {
+        if (!this.IsAlive) {
             this.die();
         }
     }
@@ -45,8 +45,8 @@ class Unit {
         this.tile.map.game.onUnitDied(this);
     }
 
-    get IsDead() {
-        return this.hp <= 0;
+    get IsAlive() {
+        return this.hp > 0;
     }
 
     get Model() {
@@ -156,7 +156,7 @@ class Shooter extends Unit {
     }
 
     shoot() {
-        if (this.target == null || this.target.IsDead) {
+        if (this.target == null || !this.target.IsAlive) {
             var newTarget = this.findTarget();
             if (newTarget != this.target) {
                 //Found new target
@@ -234,7 +234,7 @@ class Tunneler extends Ticker {
     }
 
     die() {
-        if(this.otherEnd != null && !this.otherEnd.IsDead)
+        if(this.otherEnd != null && this.otherEnd.IsAlive)
             this.otherEnd.die();
         super.die();
     }

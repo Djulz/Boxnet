@@ -16,6 +16,7 @@ var ctx;
 var map;
 var nextUnits = [];
 var socket;
+var winner = null;
 
 var GameState = {
     Login: "Login",
@@ -179,8 +180,13 @@ function initSocket(ctx) {
     });
 
     socket.on("nextUnits", (data) => {
-        console.log("nextUnits");
-        updateNextUnits(data);
+        console.log("nextUnits", data);
+        updateNextUnits(data.nextUnits);
+    });
+
+    socket.on("gameEnd", (data) => {
+        console.log("gameEnd", data);
+        winner = data.winner;
     });
 }
 
@@ -349,6 +355,16 @@ function draw(ctx) {
         }
         ctx.lineTo(startX + offsetX * tileSize, startY + offsetY * tileSize);
         ctx.stroke();
+    }   
+
+    if (winner) {
+        ctx.fillStyle = "#ccc";
+        var sizeX = 300;
+        var sizeY = 150;
+        ctx.fillRect((ctx.canvas.width - sizeX) / 2, (ctx.canvas.height - sizeY) / 2, sizeX, sizeY);
+        ctx.font = "30px Verdana";
+        ctx.fillStyle = "#000000";
+        ctx.fillText(winner + " wins!", (ctx.canvas.width - sizeX) / 2 + 20, (ctx.canvas.height - sizeY) / 2 + 20);
     }
 };
 

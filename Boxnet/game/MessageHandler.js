@@ -22,6 +22,11 @@ class MessageHandler {
             this.lobbyHandler.onMessage(socket, data);
         });
 
+        socket.on('disconnect', (data) => {
+            console.log("mh-disconnect", data);
+            this.lobbyHandler.onDisconnect(socket);
+        });
+
 
     }
 

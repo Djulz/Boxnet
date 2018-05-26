@@ -1,15 +1,15 @@
 var mongoose = require("mongoose");
 
-var playerSchema = new mongoose.Schema({
+var accSchema = new mongoose.Schema({
     googleId: { type: Number, index: true },
     name: String,
     mmr: { type: Number, default: 1500 },
     gamesPlayed: { type: Number, default: 0 }
 });
 
-var DBPlayer = mongoose.model('DBPlayer', playerSchema);
+var Account = mongoose.model('Account', accSchema);
 
-module.exports = DBPlayer;
+module.exports = Account;
 //{
 //     DBPlayer: DBPlayer
 //}

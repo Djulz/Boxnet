@@ -3,16 +3,22 @@ var Unit = require('./Unit');
 var Common = require('./Common');
 
 class Player {
-    constructor(socket, dbPlayer) {
+    constructor(socket, account) {
         this.socket = socket;
         this.socket.player = this;
-        this.dbPlayer = dbPlayer;
+        this.account = account;
         this.playerStart = null;
         this.bIsLoading = false;
         this.bIsReady = false;
         this.lobbyPlayerId = -1;
         this.nextUnits = [];
         this.rollNextUnits(5);
+        this.cores = [];
+        this.cooldown = 0;
+    }
+
+    disconnect(msg) {
+        this.socket.disconnect(msg);
     }
 
     setStartPos(x, y) {
@@ -22,9 +28,8 @@ class Player {
         };
     }
 
-    get name() 
-    {
-        return this.DBPlayer.name;
+    get name() {
+        return this.account.name;
     }
 
     emit(str, data) {
@@ -34,6 +39,14 @@ class Player {
 
     get Model() {
         return new Models.PlayerModel(this.name, "Nomads", this.lobbyPlayerId);
+    }
+
+    onInputAddUnit() {
+        this.cooldown = 5000;
+    }
+
+    update(ms) {
+        this.cooldown -= ms;
     }
 
     getNextUnit() {
@@ -49,6 +62,14 @@ class Player {
             var unit = Common.randomObjectInArray(["grower", "shooter", "tunneler", "quaker"]);
             this.nextUnits.push(unit);
         }
+    }
+
+    addCore(unit) {
+        this.cores.push(unit);
+    }
+
+    get IsAlive() {
+        return this.cores.some(x => x.IsAlive);
     }
 
 }
