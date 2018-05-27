@@ -13,7 +13,7 @@ class DrawableTile {
 
     draw(ctx, tileSize) {
         if(this.typeString == "grass" || this.typeString == "sand")
-            this.map.spriteSheet.drawSprite(ctx, this.typeString, this.x * tileSize, this.y * tileSize, tileSize, tileSize, this.variant);
+            this.map.spriteSheet.drawSprite(ctx, this.typeString, this.x * tileSize, this.y * tileSize , tileSize, tileSize, this.variant);
             else
             this.map.spriteSheet.drawSprite(ctx, this.typeString + "01", this.x * tileSize, this.y * tileSize, tileSize, tileSize);
         //ctx.fillStyle = this.getColor();

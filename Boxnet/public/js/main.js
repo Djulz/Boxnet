@@ -105,8 +105,13 @@ function onEnterGame() {
 function initSocket(ctx) {
 
     socket = io();
-    socket.on('connect', () => {
+    socket.on('connect', (data) => {
         console.log("connect");
+    });
+
+    socket.on('accountData', (data) => {
+        console.log("accountData");
+        $("#playerName").text(data.name);
     });
 
     socket.on('disconnect', () => newState(GameState.Login));

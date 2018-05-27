@@ -20,8 +20,8 @@ var Account = require('./models/Account');
 var publicFolder = 'public';
 app.use(express.static(publicFolder));
 
-app.use(bodyParser.urlencoded({extended: false, inflate: true}));
-app.use(bodyParser.json({strict: true, inflate: true}));
+app.use(bodyParser.urlencoded({ extended: false, inflate: true }));
+app.use(bodyParser.json({ strict: true, inflate: true }));
 app.use(cookieParser());
 
 
@@ -37,7 +37,7 @@ app.use(session({
 passport.use(new GoogleStrategy({
     clientID: "632928324174-m8i04urim2qtch6h1b9biu1lrbg3lac3.apps.googleusercontent.com",
     clientSecret: "QPMUHiQC3RhCpSkkRij1OzGH",
-    callbackURL: "http://localhost:41117/auth/google/callback/"
+    callbackURL: "http://djulzhass.duckdns.org:41117/auth/google/callback/"
 },
     function (accessToken, refreshToken, profile, cb) {
         findOrCreate({ googleId: profile.id }, profile.displayName, function (err, user) {
@@ -147,8 +147,17 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.get('/', function (req, res) {
-    //res.sendFile(__dirname + '/index.html');
-    res.redirect('/login');
+    if (req.isAuthenticated())
+        res.redirect('/game');
+    else
+        res.redirect('/login');
+});
+
+app.get('/game', function (req, res) {
+    if (req.isAuthenticated())
+        res.sendFile(path.join(__dirname, publicFolder, 'game.html'));
+    else
+        res.redirect('/login');
 });
 
 app.get('/login', function (req, res) {
@@ -163,14 +172,14 @@ app.get('/auth/google/callback',
     function (req, res) {
         // Successful authentication, redirect home.
         console.log("google login success");
-        res.redirect('/profile');
+        res.redirect('/game');
     });
 
 app.post('/auth/password',
     passport.authenticate('local', { failureRedirect: '/login' }),
     function (req, res) {
         console.log("password login success");
-        res.redirect('/profile');
+        res.redirect('/game');
     });
 
 
@@ -219,6 +228,6 @@ function onAuthorizeFail(data, message, error, accept) {
 
 io.on('connection', function (socket) {
     console.log("hi", socket.request.user.name);
-
+    socket.emit('accountData', { name: socket.request.user.name });
     messageHandler.onConnect(socket);
 });

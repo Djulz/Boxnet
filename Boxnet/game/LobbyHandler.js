@@ -167,8 +167,15 @@ class LobbyHandler {
     }
 
     onDisconnect(socket) {
-        if (this.getLobbyFromUserId(socket.request.user._id))
-            this.getLobbyFromUserId(socket.request.user._id).removePlayer(socket.request.user._id);
+        this.removePlayer(socket.request.user._id);
+    }
+
+    removePlayer(id) {
+        var lobby = this.getLobbyFromUserId(id);
+        if (lobby) {
+            lobby.removePlayer(id);
+            this.mapPlayerToLobby[id] = null
+        }
     }
 
     getLobbyFromUserId(id) {
