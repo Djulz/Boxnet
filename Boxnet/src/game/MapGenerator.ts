@@ -1,6 +1,16 @@
+import { TileMap } from "./Map";
+import { Tile } from "./Tile";
+import { Point } from "./Common";
+
 var DMath = require('./DMath');
 
+class ControlPoint extends Point {
+    type:string
+}
+
 class MapGenerator {
+    map:TileMap;
+    cps:ControlPoint[];
     constructor(map) {
         this.map = map;
         this.cps = [];

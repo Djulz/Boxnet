@@ -1,40 +1,46 @@
-var Game = require('./Game');
-var Map = require('./Map');
-var Unit = require('./Unit');
-var Player = require('./Player');
+import { Player } from "./Player";
+import { Game } from "./Game";
+import { TileMap } from "./Map";
+
+// var Game = require('./Game');
+// var Map = require('./Map');
+// var Unit = require('./Unit');
+//var Player = require('./Player');
 var DMath = require('./DMath');
 var Account = require('./../models/Account');
 
-class Lobby {
+export class Lobby {
+    name:string;
+    game:Game;
+    players:Player[];
+    bIsLoading:boolean;
+    bIsPlaying:boolean;
+    timeAcc:number;
     constructor(name) {
         this.name = name;
-        this.game = new Game(this, new Map(50, 30));
+        this.game = new Game(this, new TileMap(50, 30));
         this.players = [];
         this.bIsLoading = false;
         this.bIsPlaying = false;
         this.timeAcc = 0;
     }
 
-    addPlayer(socket, account) {
+    addPlayer(player, account) {
         console.log("addplayer");
-        var player = new Player(socket, account);
         player.lobbyPlayerId = this.getEmptyId();
         player.setStartPos(this.game.map.startPoints[player.lobbyPlayerId].x, this.game.map.startPoints[player.lobbyPlayerId].y);
-        socket.join(this.name);
+        player.lobby = this;
+        //socket.join(this.name);
         this.players.push(player);
     }
 
-    removePlayer(id) {
-        var player = this.getPlayer(id);
+    removePlayer(player) {
         if (player) {
             console.log("removing plauyer", player.name);
-            this.players = this.players.filter(x => x.account._id != id);
+            this.players = this.players.filter(x => x.account._id != player.account._id);
+            player.lobby = null;
         }
         return player;
-    }
-
-    getPlayer(id) {
-        return this.players.find(x => x.account._id == id);
     }
 
     getEmptyId() {
@@ -44,14 +50,14 @@ class Lobby {
         return id;
     }
 
-    onInput(socket, data) {
+    onInput(player, data) {
         console.log("input data", data);
-        if (socket.player.cooldown <= 0) {
-            socket.player.onInputAddUnit();
-            this.game.addNextUnit(data.x, data.y, data.dir, socket.player);
-            socket.emit("nextUnits", {
-                nextUnits: socket.player.nextUnits,
-                cooldown: socket.player.cooldown
+        if (player.cooldown <= 0) {
+            player.onInputAddUnit();
+            this.game.addNextUnit(data.x, data.y, data.dir, player);
+            player.emit("nextUnits", {
+                nextUnits: player.nextUnits,
+                cooldown: player.cooldown
             });
         }
         else
@@ -61,7 +67,7 @@ class Lobby {
     onLoad() {
         //Add starting units
         for (var p of this.players) {
-            var core = this.game.addUnit(p.playerStart.x, p.playerStart.y, 0, p, new Unit.Core());
+            var core = this.game.addUnit(p.playerStartX, p.playerStartY, 0, p, p.startingUnit);
             p.addCore(core);
         }
 
@@ -124,12 +130,14 @@ class Lobby {
     }
 }
 
-class LobbyHandler {
+export class LobbyHandler {
 
+    lobbies:Lobby[];
+    tickRate:number;
+    updateLoop:number;
     constructor(tickRate) {
         this.lobbies = [];
         this.tickRate = tickRate;
-        this.mapPlayerToLobby = [];
 
         var handler = this;
         this.updateLoop = setInterval(() => {
@@ -142,51 +150,41 @@ class LobbyHandler {
             this.lobbies[l].update(tickRate);
     }
 
-    onJoin(socket, data) {
-        this.joinOrCreateLobby(socket, data.lobbyName);
+    onJoin(player, data) {
+        this.joinOrCreateLobby(player, data.lobbyName);
     }
 
-    onMessage(socket, msg) {
+    onMessage(player, msg) {
         console.log("msg", msg);
         switch (msg) {
             case "loaded":
-                socket.player.bIsLoading = false;
+                player.bIsLoading = false;
                 break;
             case "ready":
-                socket.player.bIsReady = true;
+                player.bIsReady = true;
                 break;
             case "notready":
-                socket.player.bIsReady = false;
+                player.bIsReady = false;
                 break;
         }
     }
 
-    onInput(socket, data) {
-        if (this.getLobbyFromUserId(socket.request.user._id))
-            this.getLobbyFromUserId(socket.request.user._id).onInput(socket, data);
+    onInput(player, data) {
+        if (player.lobby)
+            player.lobby.onInput(player, data);
     }
 
-    onDisconnect(socket) {
-        this.removePlayer(socket.request.user._id);
+    onDisconnect(player) {
+        this.removePlayer(player);
     }
 
-    removePlayer(id) {
-        var lobby = this.getLobbyFromUserId(id);
-        if (lobby) {
-            lobby.removePlayer(id);
-            this.mapPlayerToLobby[id] = null
+    removePlayer(player) {
+        if (player.lobby) {
+            player.lobby.removePlayer(player);
         }
     }
 
-    getLobbyFromUserId(id) {
-        return this.mapPlayerToLobby[id];
-    }
-
-    addLobbyToSocket(socket, lobby) {
-        this.mapPlayerToLobby[socket.request.user._id] = lobby;
-    }
-
-    joinOrCreateLobby(socket, lobbyName) {
+    joinOrCreateLobby(player, lobbyName) {
         console.log("joinOrCreateLobby", lobbyName);
         var lobby = this.lobbies[lobbyName];
         console.log("lobbies", this.lobbies);
@@ -198,22 +196,18 @@ class LobbyHandler {
         }
 
         //Check if player already is in lobby
-        var otherLobby = this.getLobbyFromUserId(socket.request.user._id);
-        if (otherLobby != null) {
-            var otherPlayer = otherLobby.removePlayer(socket.request.user._id);
-            if (otherPlayer)
-                otherPlayer.disconnect("Someone else logged in to your account");
-            else
-                console.error("could not find other player logged in")
+        if (player.lobby != null) {
+            // var otherPlayer = otherLobby.removePlayer(socket.request.user._id);
+            // if (otherPlayer)
+            //     otherPlayer.disconnect("Someone else logged in to your account");
+            //else
+                //console.error("could not find other player logged in")
             console.log("Already in room");
         }
 
-        lobby.addPlayer(socket, socket.request.user);
-        this.addLobbyToSocket(socket, lobby);
+        lobby.addPlayer(player, null);
 
         //socket.emit("map", lobby.game.map.Model);
         //console.log("sent map", lobby.game.map);
     }
 }
-
-module.exports = LobbyHandler;

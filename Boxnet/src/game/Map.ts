@@ -1,9 +1,21 @@
-var Tile = require('./Tile');
+import { Game } from "./Game";
+import { Tile } from "./Tile";
+import { Unit } from "./Unit";
+
 var Models = require('./../public/js/models/Models');
 var DMath = require('./DMath');
 var MapGenerator = require('./MapGenerator');
 
-class Map {
+export class TileMap {
+
+    width:number;
+    height:number;
+    tiles:Tile[][];
+    units:Unit[];
+    nextUnitId:number;
+    startPoints:Tile[];
+    game:Game;
+
     constructor(w, h) {
         this.width = w;
         this.height = h;

@@ -1,6 +1,14 @@
+import { TileMap } from "./Map";
+import { Unit } from "./Unit";
+
 var Common = require('./Common');
 
-class Tile {
+export class Tile {
+    x:number;
+    y:number;
+    typeString:string;
+    units:Unit[];
+    map:TileMap;
     constructor(x, y, typeString) {
         this.x = x;
         this.y = y;
@@ -55,7 +63,7 @@ class Tile {
         });
     }
 
-    getUnitsAtDistance(d, bSorted) {
+    getUnitsAtDistance(d, bSorted = false) {
         var tiles = this.getTilesAtDistance(d, bSorted);
 
         return tiles.filter(x => x.tile.units.length > 0 && x.tile != this).map(x => x.tile.units[0]);
@@ -101,7 +109,7 @@ class Tile {
     }
 
     getTiles(d, includeTileFilter, excludeTileFilter) {
-        var queue = [{ t: this, d: d }];
+        var queue:{t:Tile, d:number}[] = [{ t: this, d: d }];
         var res = [];
         var visited = [this.Id];
 

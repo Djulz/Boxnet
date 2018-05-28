@@ -1,13 +1,26 @@
+import { Socket } from "socket.io";
+import { Unit, createUnit } from "./Unit";
+import {Account} from "./../models/Account";
+
 var Models = require('./../public/js/models/Models');
-var Unit = require('./Unit');
 var Common = require('./Common');
 
-class Player {
+export class Player {
+    socket:Socket;
+    account:Account;
+    playerStartX:number;
+    playerStartY:number;
+    bIsLoading:boolean;
+    bIsReady:boolean;
+    lobbyPlayerId:number;
+    nextUnits:string[];
+    cores:Unit[];
+    cooldown:number;
+    startingUnit:Unit;
+
     constructor(socket, account) {
         this.socket = socket;
-        this.socket.player = this;
         this.account = account;
-        this.playerStart = null;
         this.bIsLoading = false;
         this.bIsReady = false;
         this.lobbyPlayerId = -1;
@@ -15,6 +28,7 @@ class Player {
         this.rollNextUnits(5);
         this.cores = [];
         this.cooldown = 0;
+        this.startingUnit = createUnit("core");
     }
 
     disconnect(msg) {
@@ -22,10 +36,8 @@ class Player {
     }
 
     setStartPos(x, y) {
-        this.playerStart = {
-            x: x,
-            y: y
-        };
+        this.playerStartX = x;
+        this.playerStartY = y;
     }
 
     get name() {
@@ -51,7 +63,7 @@ class Player {
 
     getNextUnit() {
         var unitType = this.nextUnits.shift();
-        var unit = Unit.createUnit(unitType);
+        var unit = createUnit(unitType);
         this.rollNextUnits(5);
         return unit;
     }

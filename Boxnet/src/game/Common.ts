@@ -1,12 +1,12 @@
-var DMath = require('./DMath');
+//var DMath = require('./DMath');
 
-var Direction = Object.freeze(
+export enum Direction
     {
-        "up": 0,
-        "right": 1,
-        "down": 2,
-        "left": 3
-    });
+        Up = 0,
+        Right,
+        Down,
+        Left
+    };
 
 var TileType = Object.freeze(
     {
@@ -29,11 +29,16 @@ var TileType = Object.freeze(
     });
 
 function randomObjectInArray(array) {
-    return array[DMath.getRandomInt(0, array.length)];
+    return array[getRandomInt(0, array.length)];
 }
 
-module.exports = {
-    Direction: Direction,
-    TileType:  TileType,
-    randomObjectInArray:  randomObjectInArray
-};
+export class Point {
+    x:number;
+    y:number;
+}
+
+// module.exports = {
+//     Direction: Direction,
+//     TileType:  TileType,
+//     randomObjectInArray:  randomObjectInArray
+// };

@@ -1,11 +1,22 @@
-class SpriteSheet {
+import * as $ from "jquery";
+
+interface MyType {
+    [index: string]: Sprite[];
+}
+
+export class SpriteSheet {
+    sprites: Sprite[];
+    img: any;
+    animations: AnimatedSprite[];
+    variants: MyType;
+
     constructor(path) {
         this.sprites = [];
         this.img = null;
         this.readImageFromFile(path + ".png")
         this.readJsonFromFile(path + ".json");
         this.animations = [];
-        this.variants = [];
+        //this.variants = [] as MyType;
     }
 
     get defaultSprite() {
@@ -46,7 +57,7 @@ class SpriteSheet {
                     anims[animName].push(sprite);
                 }
                 //Check if it has variants
-                else if (!isNaN(spriteName.substring(spriteName.length - 2))) {
+                else if (!isNaN(+spriteName.substring(spriteName.length - 2))) {
                     var variant = spriteName.substring(0, spriteName.length - 2);
                     that.addVariant(variant, sprite);
                 }
@@ -71,10 +82,10 @@ class SpriteSheet {
         this.variants[variant].push(sprite);
     }
 
-    update(ms) {
-        for (var a in this.animations)
-            this.animations[a].update(ms);
-    }
+    // update(ms) {
+    //     for (var a in this.animations)
+    //         this.animations[a].update(ms);
+    // }
 
     drawSprite(ctx, spriteName, x, y, w, h, variant = -1) {
         //console.log("draw sprite", spriteName);
@@ -98,15 +109,20 @@ class SpriteSheet {
         return this.sprites[name];
     }
 
-    drawAnimation(ctx, animName, x, y, w, h) {
-        console.log("draw animation", animName);
-        var anim = this.animations[animName];
-        if (anim)
-            anim.draw(ctx, x, y, w, h);
-    }
+    // drawAnimation(ctx, animName, x, y, w, h) {
+    //     console.log("draw animation", animName);
+    //     var anim = this.animations[animName];
+    //     if (anim)
+    //         anim.draw(ctx, x, y, w, h);
+    // }
 }
 
-class Sprite {
+export class Sprite {
+    sheet: SpriteSheet;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
     constructor(sheet, x, y, w, h) {
         this.sheet = sheet;
         this.x = x;
@@ -120,8 +136,9 @@ class Sprite {
     }
 }
 
-class AnimatedSprite {
-    constructor(sprites) {
+export class AnimatedSprite {
+    sprites: Sprite[];
+    constructor(sprites: Sprite[]) {
         this.sprites = sprites;
     }
 
@@ -133,7 +150,8 @@ class AnimatedSprite {
         return this.sprites.length;
     }
 
-    draw(ctx, x, y, w, h) {
-        this.sprite.draw(ctx, x, y, w, h);
-    }
+    // draw(ctx, x, y, w, h) {
+    //     this.sprite.draw(ctx, x, y, w, h);
+    // }
 }
+

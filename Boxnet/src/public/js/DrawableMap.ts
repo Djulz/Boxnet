@@ -1,6 +1,17 @@
-class DrawableMap {
+import { DrawableUnit } from "./DrawableUnit";
+import { DrawableTile } from "./DrawableTile";
+import { SpriteSheet } from "./SpriteSheet";
 
-    constructor(w, h) {
+export class DrawableMap {
+
+    width: number;
+    height:number;
+    tiles: DrawableTile[][];
+    units: DrawableUnit[];
+    unitMap: DrawableUnit[];
+    spriteSheet:SpriteSheet;
+    mapUnitToAnim: string[];
+    constructor(w:number, h) {
         this.width = w;
         this.height = h;
         this.tiles = [];
@@ -18,7 +29,7 @@ class DrawableMap {
 
     readData(data) {
         for (var x = 0; x < data.map.width; x++) {
-            this.tiles[x] = [];
+            this.tiles[x] = [] as DrawableTile[];
             for (var y = 0; y < data.map.height; y++) {
                 var tile = data.map.tiles[x][y];
                 var drawableTile = new DrawableTile(tile.x, tile.y, tile.typeString);

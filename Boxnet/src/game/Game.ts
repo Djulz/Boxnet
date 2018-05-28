@@ -1,4 +1,20 @@
-class Game {
+import { TileMap } from "./Map";
+import { Player } from "./Player";
+import { Lobby } from "./LobbyHandler";
+
+class GameEvent {
+    event:string;
+    data:object;
+}
+
+export class Game {
+    map :TileMap;
+    lobby:Lobby;
+    events:GameEvent[];
+    tick:number;
+    isRunning :boolean;
+    winner:Player;
+
     constructor(lobby, map) {
         this.map = map;
         this.map.game = this;
@@ -55,5 +71,3 @@ class Game {
         return this.map.addUnit(x, y, dir, unit, owner);
     }
 }
-
-module.exports = Game;

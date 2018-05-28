@@ -1,47 +1,19 @@
+
+import * as Models from "./models/Models";
+import { AnimatedSprite, Sprite } from "./SpriteSheet";
+
 const drawPadding = .1;
 const playerColors = ["#00FF00", "#FF0000", "#FFFF00"];
 
-class AnimationData {
-    constructor(animatedSprite) {
-        this.currentFrame = 0;
-        this.fps = 2;
-        this.frameTimePassed = 0;
-        this.animatedSprite = animatedSprite;
-        this.startFrame = 0;
-        this.endFrame = animatedSprite.frameCount - 1;
-        this.pingPong = false;
-    }
+export class DrawableUnit {
+    unitModel:Models.UnitModel
+    x:number;
+    y:number;
+    hp:number;
+    target:DrawableUnit;
+    animationData:AnimationData;
+    sprite:Sprite;
 
-    set fps(i) {
-        this._fps = i;
-        this._frameTime = 1000.0 / i;
-    }
-
-    setFrame(i) {
-        this.currentFrame = i % this.animatedSprite.frameCount;
-    }
-
-    nextFrame() {
-        this.setFrame(this.currentFrame + 1);
-    }
-
-    update(ms) {
-        this.frameTimePassed += ms;
-        while (this.frameTimePassed >= this._frameTime) {
-            this.frameTimePassed -= this._frameTime;
-            this.nextFrame();
-        }
-    }
-
-    draw(ctx, x, y, w, h) {
-        var sprite = this.animatedSprite.getFrame(this.currentFrame);
-        sprite.draw(ctx, x, y, w, h);
-    }
-
-
-}
-
-class DrawableUnit {
     constructor(x, y, unitModel) {
         this.unitModel = unitModel;
         this.x = x;
@@ -124,3 +96,53 @@ class DrawableUnit {
         }
     }
 }
+
+class AnimationData {
+    currentFrame:number;
+    _fps:number;
+    _frameTime:number;
+    frameTimePassed:number;
+    animatedSprite:AnimatedSprite;
+    startFrame:number;
+    endFrame:number;
+    pingPong:boolean;
+
+    constructor(animatedSprite:AnimatedSprite) {
+        this.currentFrame = 0;
+        this.fps = 2;
+        this.frameTimePassed = 0;
+        this.animatedSprite = animatedSprite;
+        this.startFrame = 0;
+        this.endFrame = animatedSprite.frameCount - 1;
+        this.pingPong = false;
+    }
+
+    set fps(i) {
+        this._fps = i;
+        this._frameTime = 1000.0 / i;
+    }
+
+    setFrame(i) {
+        this.currentFrame = i % this.animatedSprite.frameCount;
+    }
+
+    nextFrame() {
+        this.setFrame(this.currentFrame + 1);
+    }
+
+    update(ms) {
+        this.frameTimePassed += ms;
+        while (this.frameTimePassed >= this._frameTime) {
+            this.frameTimePassed -= this._frameTime;
+            this.nextFrame();
+        }
+    }
+
+    draw(ctx, x, y, w, h) {
+        var sprite = this.animatedSprite.getFrame(this.currentFrame);
+        sprite.draw(ctx, x, y, w, h);
+    }
+
+}
+
+

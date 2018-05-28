@@ -1,6 +1,14 @@
-//var DMath = require('./DMath');
+import { DrawableMap } from "./DrawableMap";
 
-class DrawableTile {
+export class DrawableTile {
+    x: number;
+    y:number;
+    typeString: string;
+
+    grassColor:string;
+    mntColor:string;
+    variant:number;
+    map:DrawableMap;
     constructor(x, y, typeString) {
         this.x = x;
         this.y = y;

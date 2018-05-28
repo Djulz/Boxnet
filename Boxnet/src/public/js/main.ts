@@ -1,4 +1,6 @@
-
+import { DrawableMap } from "./DrawableMap";
+import { DrawableUnit } from "./DrawableUnit";
+import socketIO from 'socket.io';
 function randomWithRange(min, max) {
     var range = (max - min);
     return Math.round(Math.random() * range) + min;
@@ -39,6 +41,7 @@ var brushXVel = 1;
 var brushYVel = 1;
 var brushActive = "";
 var debug = true;
+var myId = -1;
 
 function newState(state) {
 
@@ -104,7 +107,7 @@ function onEnterGame() {
 
 function initSocket(ctx) {
 
-    socket = io();
+    socket = socketIO();
     socket.on('connect', (data) => {
         console.log("connect");
     });
@@ -375,7 +378,7 @@ function draw(ctx) {
 
 
 window.onload = function () {
-    var c = document.getElementById("canvas");
+    var c = <HTMLCanvasElement>document.getElementById("canvas");
     ctx = c.getContext("2d");
 
     divLogin = $("#login");
