@@ -1,6 +1,7 @@
 import { DrawableMap } from "./DrawableMap";
 import { DrawableUnit } from "./DrawableUnit";
-import socketIO from 'socket.io';
+import * as Models from "./models/Models";
+import * as sio from 'socket.io';
 function randomWithRange(min, max) {
     var range = (max - min);
     return Math.round(Math.random() * range) + min;
@@ -107,7 +108,7 @@ function onEnterGame() {
 
 function initSocket(ctx) {
 
-    socket = socketIO();
+    socket = sio();
     socket.on('connect', (data) => {
         console.log("connect");
     });
@@ -232,7 +233,7 @@ function handleClick(x, y, dir) {
     console.log("clicked ", x, y, dir);
     console.log(map.tiles[x][y]);
     if (map.tiles[x][y].typeString != "mountain")
-        socket.emit("input", new InputModel(x, y, dir));
+        socket.emit("input", new Models.InputModel(x, y, dir));
     brushXVel *= -1;
     brushYVel *= -1;
 }

@@ -34,7 +34,7 @@ export class Lobby {
         this.players.push(player);
     }
 
-    removePlayer(player) {
+    removePlayer(player:Player) {
         if (player) {
             console.log("removing plauyer", player.name);
             this.players = this.players.filter(x => x.account._id != player.account._id);

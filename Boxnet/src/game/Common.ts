@@ -1,4 +1,5 @@
 //var DMath = require('./DMath');
+import * as DMath from './DMath';
 
 export enum Direction
     {
@@ -28,13 +29,8 @@ var TileType = Object.freeze(
         }
     });
 
-function randomObjectInArray(array) {
-    return array[getRandomInt(0, array.length)];
-}
-
-export class Point {
-    x:number;
-    y:number;
+export function randomObjectInArray(array) {
+    return array[DMath.getRandomInt(0, array.length)];
 }
 
 // module.exports = {

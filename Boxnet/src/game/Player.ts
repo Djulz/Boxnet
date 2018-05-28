@@ -1,13 +1,16 @@
 import { Socket } from "socket.io";
 import { Unit, createUnit } from "./Unit";
-import {Account} from "./../models/Account";
+import { IAccount } from "./../models/Account";
+import { Lobby } from "./LobbyHandler";
+import * as Models from "./../public/js/models/Models";
+import * as Common from "./Common";
 
-var Models = require('./../public/js/models/Models');
-var Common = require('./Common');
+// var Models = require('./../public/js/models/Models');
+// var Common = require('./Common');
 
 export class Player {
     socket:Socket;
-    account:Account;
+    account:IAccount;
     playerStartX:number;
     playerStartY:number;
     bIsLoading:boolean;
@@ -17,6 +20,7 @@ export class Player {
     cores:Unit[];
     cooldown:number;
     startingUnit:Unit;
+    lobby:Lobby;
 
     constructor(socket, account) {
         this.socket = socket;

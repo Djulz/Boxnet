@@ -1,8 +1,13 @@
-function getRandomInt(min, max) {
+export function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-function bresenhamLine(x0, y0, x1, y1, callback) {
+export class Point {
+    x:number;
+    y:number;
+}
+
+export function bresenhamLine(x0, y0, x1, y1, callback) {
     var dx = Math.abs(x1 - x0),
         dy = Math.abs(y1 - y0),
         sx = x0 < x1 ? 1 : -1,
@@ -24,8 +29,3 @@ function bresenhamLine(x0, y0, x1, y1, callback) {
         }
     }
 }
-
-module.exports = {
-    getRandomInt: getRandomInt,
-    bresenhamLine: bresenhamLine
-};

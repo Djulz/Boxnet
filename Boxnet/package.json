@@ -23,5 +23,15 @@
     "passport.socketio": "^3.7.0",
     "socket.io": "^2.1.1",
     "typescript": "^2.8.3"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1"
+  },
+  "scripts": {
+    "start": "babel-node index.js --presets es2015,stage-2",
+    "build": "babel dist -d dist --presets es2015,stage-2",
+    "serve": "node dist/server.js"
   }
 }

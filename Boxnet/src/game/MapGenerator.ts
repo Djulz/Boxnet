@@ -1,10 +1,10 @@
 import { TileMap } from "./Map";
 import { Tile } from "./Tile";
-import { Point } from "./Common";
+import * as DMath from "./DMath";
 
-var DMath = require('./DMath');
+//var DMath = require('./DMath');
 
-class ControlPoint extends Point {
+class ControlPoint extends DMath.Point {
     type:string
 }
 

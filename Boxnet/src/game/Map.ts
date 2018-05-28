@@ -107,5 +107,3 @@ export class TileMap {
         return map;
     }
 }
-
-module.exports = Map;

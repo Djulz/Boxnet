@@ -111,7 +111,7 @@ export class Tile {
     getTiles(d, includeTileFilter, excludeTileFilter) {
         var queue:{t:Tile, d:number}[] = [{ t: this, d: d }];
         var res = [];
-        var visited = [this.Id];
+        var visited:number[] = [this.Id];
 
         while (queue.length > 0) {
             var td = queue.shift();
