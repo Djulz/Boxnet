@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import { Unit, createUnit } from "./Unit";
 import { IAccount } from "./../models/Account";
-import { Lobby } from "./LobbyHandler";
+import { Lobby } from "./Lobby";
 import * as Models from "./../public/js/models/Models";
 import * as Common from "./Common";
 

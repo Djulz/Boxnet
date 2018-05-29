@@ -1,6 +1,6 @@
 import { TileMap } from "./Map";
 import { Player } from "./Player";
-import { Lobby } from "./LobbyHandler";
+import { Lobby } from "./Lobby";
 
 class GameEvent {
     event:string;
