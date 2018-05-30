@@ -1,16 +1,16 @@
 {
     "compilerOptions": {
-        "outDir": "./../../dist/",
+        "outDir": "dist/server",
         "allowJs": true,
         "target": "es6",
         //"noEmitOnError": true,
         "module": "commonjs",
         "esModuleInterop": true,
-        "rootDir": "./../"
+        //"rootDir": "./../"
         //"moduleResolution": "node"
     },
     "include": [
-        "**/*", "./../shared/**/*"
+        "src/server/**/*", "src/shared/**/*"
     ]
     //,"files": ["./../shared/Models.ts"]
 }
