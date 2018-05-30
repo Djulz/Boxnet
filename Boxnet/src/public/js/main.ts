@@ -2,6 +2,7 @@ import { DrawableMap } from "./DrawableMap";
 import { DrawableUnit } from "./DrawableUnit";
 import * as Models from "./models/Models";
 import * as sio from 'socket.io';
+
 function randomWithRange(min, max) {
     var range = (max - min);
     return Math.round(Math.random() * range) + min;

@@ -8,7 +8,7 @@ class ControlPoint extends DMath.Point {
     type:string
 }
 
-class MapGenerator {
+export class MapGenerator {
     map:TileMap;
     cps:ControlPoint[];
     constructor(map) {
@@ -92,5 +92,3 @@ class MapGenerator {
     //    }
     //}
 }
-
-module.exports = MapGenerator;

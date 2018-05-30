@@ -1,7 +1,8 @@
 import { TileMap } from "./Map";
 import { Unit } from "./Unit";
+import * as Common from "./Common";
 
-var Common = require('./Common');
+//var Common = require('./Common');
 
 export class Tile {
     x:number;
@@ -97,13 +98,13 @@ export class Tile {
 
     getDirection(dir) {
         switch(dir) {
-            case Common.Direction.up:
+            case Common.Direction.Up:
             return this.Up;
-            case Common.Direction.down:
+            case Common.Direction.Down:
             return this.Down;
-            case Common.Direction.left:
+            case Common.Direction.Left:
             return this.Left;
-            case Common.Direction.right:
+            case Common.Direction.Right:
             return this.Right;
         }
     }

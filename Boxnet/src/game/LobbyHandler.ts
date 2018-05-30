@@ -7,10 +7,10 @@ import { Lobby } from "./Lobby";
 // var Map = require('./Map');
 // var Unit = require('./Unit');
 //var Player = require('./Player');
-var DMath = require('./DMath');
-var Account = require('./../models/Account');
+//var DMath = require('./DMath');
+//var Account = require('./../models/Account');
 
-export class LobbyHandler {
+class LobbyHandler {
 
     lobbies:Lobby[];
     tickRate:number;
@@ -91,3 +91,5 @@ export class LobbyHandler {
         //console.log("sent map", lobby.game.map);
     }
 }
+
+export { LobbyHandler };

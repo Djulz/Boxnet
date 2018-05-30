@@ -1,10 +1,13 @@
 import { Game } from "./Game";
 import { Tile } from "./Tile";
 import { Unit } from "./Unit";
+import { MapGenerator } from "./MapGenerator";
+import * as DMath from "./DMath";
+import * as Models from "./../public/js/models/Models";
 
-var Models = require('./../public/js/models/Models');
-var DMath = require('./DMath');
-var MapGenerator = require('./MapGenerator');
+//var Models = require('./../public/js/models/Models');
+//var DMath = require('./DMath');
+//var MapGenerator = require('./MapGenerator');
 
 export class TileMap {
 

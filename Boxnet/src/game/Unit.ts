@@ -1,9 +1,10 @@
 import { Tile } from "./Tile";
 import { Player } from "./Player";
 import { Direction } from "./Common"
+import * as Models from "./../public/js/models/Models";
 
-var Models = require('./../public/js/models/Models');
-var DMath = require('./DMath');
+//var Models = require('./../public/js/models/Models');
+//var DMath = require('./DMath');
 //var Common = require('./Common');
 //var UnitFactory = require('./factories/UnitFactory');
 

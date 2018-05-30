@@ -26,11 +26,13 @@ export class UnitModel {
     id:number;
     owner:number;
     hp:number;
+    targetId:number;
     constructor(type, id, owner, hp) {
         this.type = type;
         this.id = id;
         this.owner = owner;
         this.hp = hp;
+        this.targetId = -1;
     }
 }
 

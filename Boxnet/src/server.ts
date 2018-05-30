@@ -9,12 +9,12 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 
-var LobbyHandler = require('./game/LobbyHandler');
-var MessageHandler = require('./game/MessageHandler');
-var GoogleStrategy = require('passport-google-oauth20').Strategy;
-var LocalStrategy = require('passport-local').Strategy;
+import {LobbyHandler} from './game/LobbyHandler';
+import {MessageHandler} from './game/MessageHandler';
+import * as GoogleStrategy from 'passport-google-oauth20';
+import * as LocalStrategy from 'passport-local';
 
-var Account = require('./models/Account');
+import {Account} from './models/Account';
 
 //Static
 var publicFolder = 'public';
@@ -34,7 +34,7 @@ app.use(session({
     store: sessionStore
 }));
 
-passport.use(new GoogleStrategy({
+passport.use(new GoogleStrategy.Strategy({
     clientID: "632928324174-m8i04urim2qtch6h1b9biu1lrbg3lac3.apps.googleusercontent.com",
     clientSecret: "QPMUHiQC3RhCpSkkRij1OzGH",
     callbackURL: "http://djulzhass.duckdns.org:41117/auth/google/callback/"
@@ -71,7 +71,7 @@ function findOrCreate(userObject, name, cb) {
 }
 
 //Passport-local
-passport.use(new LocalStrategy(
+passport.use(new LocalStrategy.Strategy(
     function (username, password, done) {
         Account.findOne({ name: username }, function (err, user) {
             if (err) { return done(err); }
@@ -109,17 +109,17 @@ passport.deserializeUser(function (obj, cb) {
 
 
 //DB
-mongoose.connect('mongodb://192.168.0.105/boxnet');
+//mongoose.connect('mongodb://192.168.0.105/boxnet');
 
 var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function () {
-    // we're connected!
-    console.log("connected");
+// db.on('error', console.error.bind(console, 'connection error:'));
+// db.once('open', function () {
+//     // we're connected!
+//     console.log("connected");
 
-    //Player = mongoose.model('Player', playerSchema);
+//     //Player = mongoose.model('Player', playerSchema);
 
-});
+// });
 
 
 var http = require('http').Server(app);
