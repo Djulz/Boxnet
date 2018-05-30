@@ -109,17 +109,17 @@ passport.deserializeUser(function (obj, cb) {
 
 
 //DB
-//mongoose.connect('mongodb://192.168.0.105/boxnet');
+mongoose.connect('mongodb://192.168.0.105/boxnet');
 
 var db = mongoose.connection;
-// db.on('error', console.error.bind(console, 'connection error:'));
-// db.once('open', function () {
-//     // we're connected!
-//     console.log("connected");
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function () {
+    // we're connected!
+    console.log("connected");
 
-//     //Player = mongoose.model('Player', playerSchema);
+    //Player = mongoose.model('Player', playerSchema);
 
-// });
+});
 
 
 var http = require('http').Server(app);
