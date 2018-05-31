@@ -1,5 +1,6 @@
 import { LobbyHandler } from "./LobbyHandler";
 import { Player } from "./Player";
+import { Socket } from "socket.io";
 
 class MessageHandler {
 
@@ -10,32 +11,32 @@ class MessageHandler {
         this.players = [];
     }
 
-    getPlayerFromSocket(socket) {
+    getPlayerFromSocket(socket:Socket) {
         var id = socket.request.user._id;
         if (isNaN(id) && this.players[id])
             return this.players[id];
         return null;
     }
 
-    addSocketToPlayer(socket) {
+    addSocketToPlayer(socket, account) {
         var player = this.getPlayerFromSocket(socket);
         if (!player)
-            player = new Player(socket, null);
+            player = new Player(socket, account);
 
         this.players[socket.request.user._id] = player;
         return player;
     }
 
-    onConnect(socket) {
+    onConnect(socket:Socket) {
 
-        var player = this.getPlayerFromSocket(socket.request.user._id);
+        var player = this.getPlayerFromSocket(socket);
 
         if (player) {
             //Check if conected already
             player.disconnect("Someone logged in elsewhere");
         }
 
-        player = this.addSocketToPlayer(socket);
+        player = this.addSocketToPlayer(socket, socket.request.user);
 
         socket.on("input", (data) => {
             console.log("input", data);

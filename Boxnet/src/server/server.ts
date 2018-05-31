@@ -17,7 +17,7 @@ import * as LocalStrategy from 'passport-local';
 import {Account} from './models/Account';
 
 //Static
-var publicFolder = './../../client/public';
+var publicFolder = './../../client';
 app.use(express.static(publicFolder));
 
 app.use(bodyParser.urlencoded({ extended: false, inflate: true }));

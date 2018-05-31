@@ -89,5 +89,3 @@ export class Player {
     }
 
 }
-
-module.exports = Player;

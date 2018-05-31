@@ -183,6 +183,3 @@ export class Tile {
         return this.map.getTile(this.x, this.y + 1);
     }
 }
-
-if (typeof module !== 'undefined')
-    module.exports = Tile;

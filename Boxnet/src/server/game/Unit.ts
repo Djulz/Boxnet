@@ -314,11 +314,3 @@ export function createUnit(type:string):Unit {
     }
 }
 
-
-module.exports = {
-    Grower: Grower,
-    Core: Core,
-    Shooter: Shooter,
-    Tunneler: Tunneler,
-    createUnit: createUnit
-};
