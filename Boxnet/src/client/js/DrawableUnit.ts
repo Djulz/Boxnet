@@ -1,5 +1,5 @@
 
-import * as Models from "./models/Models";
+import * as Models from "./../../shared/Models";
 import { AnimatedSprite, Sprite } from "./SpriteSheet";
 
 const drawPadding = .1;

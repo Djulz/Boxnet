@@ -1,7 +1,7 @@
 import { DrawableMap } from "./DrawableMap";
 import { DrawableUnit } from "./DrawableUnit";
-import * as Models from "./models/Models";
-import * as sio from 'socket.io';
+import * as Models from "./../../shared/Models"
+import * as sio from './../lib/socket.io';
 
 function randomWithRange(min, max) {
     var range = (max - min);

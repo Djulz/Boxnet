@@ -2,9 +2,9 @@
     "compilerOptions": {
         "outDir": "dist/client",
         "allowJs": true,
-        "target": "es5",
+        "target": "es6",
         //"noEmitOnError": true,
-        //"module": "commonjs",
+        "module": "commonjs",
         "esModuleInterop": true,
         //"rootDir": "./../"
         //"moduleResolution": "node"

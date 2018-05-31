@@ -2,7 +2,7 @@ import { Socket } from "socket.io";
 import { Unit, createUnit } from "./Unit";
 import { IAccount } from "./../models/Account";
 import { Lobby } from "./Lobby";
-import * as Models from "./../public/js/models/Models";
+import * as Models from "./../../shared/Models"
 import * as Common from "./Common";
 
 // var Models = require('./../public/js/models/Models');
