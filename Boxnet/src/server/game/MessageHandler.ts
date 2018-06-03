@@ -6,20 +6,20 @@ class MessageHandler {
 
     lobbyHandler:LobbyHandler;
     players:Player[];
-    constructor(lobbyHandler) {
+    constructor(lobbyHandler:LobbyHandler) {
         this.lobbyHandler = lobbyHandler;
         this.players = [];
     }
 
     getPlayerFromSocket(socket:Socket) {
-        var id = socket.request.user._id;
+        const id = socket.request.user._id;
         if (isNaN(id) && this.players[id])
             return this.players[id];
         return null;
     }
 
-    addSocketToPlayer(socket, account) {
-        var player = this.getPlayerFromSocket(socket);
+    addSocketToPlayer(socket:Socket, account:IAccount) {
+        let player = this.getPlayerFromSocket(socket);
         if (!player)
             player = new Player(socket, account);
 
@@ -29,7 +29,7 @@ class MessageHandler {
 
     onConnect(socket:Socket) {
 
-        var player = this.getPlayerFromSocket(socket);
+        let player = this.getPlayerFromSocket(socket);
 
         if (player) {
             //Check if conected already
@@ -59,7 +59,6 @@ class MessageHandler {
             console.log("mh-disconnect", data);
             this.lobbyHandler.onDisconnect(player);
         });
-
 
     }
 

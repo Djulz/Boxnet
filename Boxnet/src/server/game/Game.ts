@@ -1,6 +1,8 @@
 import { TileMap } from "./Map";
 import { Player } from "./Player";
 import { Lobby } from "./Lobby";
+import { Unit } from "./Unit";
+import { Direction } from "./Common";
 
 class GameEvent {
     event:string;
@@ -15,7 +17,7 @@ export class Game {
     isRunning :boolean;
     winner:Player;
 
-    constructor(lobby, map) {
+    constructor(lobby:Lobby, map:TileMap) {
         this.map = map;
         this.map.game = this;
         this.lobby = lobby;
@@ -24,22 +26,22 @@ export class Game {
         this.isRunning = true;
     }
 
-    update(players, ms) {
+    update(players:Player[], ms:number) {
 
         if (this.isRunning) {
             this.map.update(ms);
-            for (var p of players) {
+            for (const p of players) {
                 p.update(ms);
 
                 if (p.socket.connected) {
-                    for (var ev of this.events)
+                    for (const ev of this.events)
                         p.emit(ev.event, ev.data);
                 }
             }
             this.events = [];
 
-            var playersAlive = players.filter(x => x.IsAlive);
-            if (playersAlive.length == 1) {
+            const playersAlive = players.filter(x => x.IsAlive);
+            if (playersAlive.length === 1) {
                 this.onGameEnd(playersAlive[0]);
                 this.lobby.onGameEnd(this);
             }
@@ -48,26 +50,26 @@ export class Game {
         this.tick++;
     }
 
-    onGameEnd(winner) {
+    onGameEnd(winner:Player) {
         this.isRunning = false;
         this.winner = winner;
         console.log("game has ended, winner", this.winner.name);
     }
 
-    onEvent(event, data) {
+    onEvent(event:string, data:any) {
         this.events.push({ event: event, data: data });
     }
 
-    onUnitDied(unit) {
+    onUnitDied(unit:Unit) {
         this.map.removeUnit(unit);
     }
 
-    addNextUnit(x, y, dir, owner) {
-        var unit = owner.getNextUnit();
+    addNextUnit(x:number, y:number, dir:Direction, owner:Player) {
+        const unit = owner.getNextUnit();
         return this.map.addUnit(x, y, dir, unit, owner);
     }
 
-    addUnit(x, y, dir, owner, unit) {
+    addUnit(x:number, y:number, dir:Direction, owner:Player, unit:Unit) {
         return this.map.addUnit(x, y, dir, unit, owner);
     }
 }

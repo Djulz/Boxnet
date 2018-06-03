@@ -5,47 +5,47 @@ import * as DMath from "./DMath";
 //var DMath = require('./DMath');
 
 class ControlPoint extends DMath.Point {
-    type:string
+    type:string;
 }
 
 export class MapGenerator {
     map:TileMap;
     cps:ControlPoint[];
-    constructor(map) {
+    constructor(map:TileMap) {
         this.map = map;
         this.cps = [];
     }
 
-    addCP(x, y, type) {
+    addCP(x:number, y:number, type:string) {
         this.cps.push({
             x: x,
             y: y,
-            type: type
+            type: type,
         });
     }
 
-    generateWithCPs(grass, mountain) {
+    generateWithCPs(grass:number, mountain:number) {
         this.addCPs("grass", grass);
         this.addCPs("mountain", mountain);
 
-        for (var x = 0; x < this.map.width; x++) {
-            for (var y = 0; y < this.map.height; y++) {
-                var cp = this.findClosestCP(x, y);
+        for (let x = 0; x < this.map.width; x++) {
+            for (let y = 0; y < this.map.height; y++) {
+                const cp = this.findClosestCP(x, y);
                 this.map.getTile(x, y).typeString = cp.type;
             }
         }
     }
 
-    findClosestCP(x, y) {
+    findClosestCP(x:number, y:number) {
         if (this.cps.length <= 0)
             return null;
 
-        var closest = this.cps[0];
-        var dist = 100000;
-        for (var cp of this.cps) {
-            var a = cp.x - x;
-            var b = cp.y - y;
-            var d = Math.sqrt(a * a + b * b);
+        let closest = this.cps[0];
+        let dist = 100000;
+        for (const cp of this.cps) {
+            const a = cp.x - x;
+            const b = cp.y - y;
+            const d = Math.sqrt(a * a + b * b);
             if (d < dist) {
                 dist = d;
                 closest = cp;
@@ -55,21 +55,21 @@ export class MapGenerator {
         return closest;
     }
 
-    addCPs(type, n) {
-        for (var i = 0; i < n; i++)
+    addCPs(type:string, n:number) {
+        for (let i = 0; i < n; i++)
             this.addCP(DMath.getRandomInt(0, this.map.width), DMath.getRandomInt(0, this.map.height), type);
     }
 
-    addStartPoints(n, wallDist, minDist) {
+    addStartPoints(n:number, wallDist:number, minDist:number) {
         this.map.startPoints = [];
-        for (var i = 0; i < n; i++) {            
-            var iTries = 0;
+        for (let i = 0; i < n; i++) {
+            let iTries = 0;
             console.log("startpooint", i, "startt");
             while (iTries++ < 100) {
-                var tile = this.map.getRandomTile(wallDist);
+                const tile = this.map.getRandomTile(wallDist);
 
                 this.map.startPoints.sort((a, b) => a.getDistanceTo(tile) - b.getDistanceTo(tile));
-                var closestSP = this.map.startPoints.length == 0 ? null : this.map.startPoints[0];
+                const closestSP = this.map.startPoints.length === 0 ? null : this.map.startPoints[0];
 
                 if (closestSP == null || tile.getDistanceTo(closestSP) > minDist) {
                     this.map.startPoints.push(tile);
@@ -81,7 +81,6 @@ export class MapGenerator {
 
         return this.map.startPoints.length;
     }
-
 
     //addMountainsCPs(n) {
     //    for (var i = 0; i < n; i++) {

@@ -2,7 +2,7 @@ import { Socket } from "socket.io";
 import { Unit, createUnit } from "./Unit";
 import { IAccount } from "./../models/Account";
 import { Lobby } from "./Lobby";
-import * as Models from "./../../shared/Models"
+import * as Models from "./../../shared/Models";
 import * as Common from "./Common";
 
 // var Models = require('./../public/js/models/Models');
@@ -22,7 +22,7 @@ export class Player {
     startingUnit:Unit;
     lobby:Lobby;
 
-    constructor(socket, account) {
+    constructor(socket:Socket, account:IAccount) {
         this.socket = socket;
         this.account = account;
         this.bIsLoading = false;
@@ -35,11 +35,11 @@ export class Player {
         this.startingUnit = createUnit("core");
     }
 
-    disconnect(msg) {
+    disconnect(msg:string) {
         this.socket.disconnect(msg);
     }
 
-    setStartPos(x, y) {
+    setStartPos(x:number, y:number) {
         this.playerStartX = x;
         this.playerStartY = y;
     }
@@ -48,7 +48,7 @@ export class Player {
         return this.account.name;
     }
 
-    emit(str, data) {
+    emit(str:string, data:any) {
         //console.log("sending", str);
         this.socket.emit(str, data);
     }
@@ -61,26 +61,26 @@ export class Player {
         this.cooldown = 5000;
     }
 
-    update(ms) {
+    update(ms:number) {
         this.cooldown -= ms;
     }
 
     getNextUnit() {
-        var unitType = this.nextUnits.shift();
-        var unit = createUnit(unitType);
+        const unitType = this.nextUnits.shift();
+        const unit = createUnit(unitType);
         this.rollNextUnits(5);
         return unit;
     }
 
-    rollNextUnits(n) {
+    rollNextUnits(n:number) {
         while (this.nextUnits.length < n) {
 
-            var unit = Common.randomObjectInArray(["grower", "shooter", "tunneler", "quaker"]);
+            const unit = Common.randomObjectInArray(["grower", "shooter", "tunneler", "quaker"]);
             this.nextUnits.push(unit);
         }
     }
 
-    addCore(unit) {
+    addCore(unit:Unit) {
         this.cores.push(unit);
     }
 

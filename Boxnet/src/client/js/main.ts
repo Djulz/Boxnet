@@ -1,6 +1,6 @@
 import { DrawableMap } from "./DrawableMap";
 import { DrawableUnit } from "./DrawableUnit";
-import * as Models from "./../../shared/Models"
+import * as Models from "./../../shared/Models";
 var sio = require('socket.io-client');
 
 function randomWithRange(min, max) {
@@ -26,7 +26,7 @@ var GameState = {
     Login: "Login",
     Lobby: "Lobby",
     Loading: "Loading",
-    Game: "Game"
+    Game: "Game",
 };
 
 var gameState;
@@ -84,9 +84,9 @@ function reset() {
 }
 
 function onEnterGame() {
-    this.intGameLoop = setInterval(function () {
+    this.intGameLoop = setInterval(() => {
         update(tickRate);
-        draw(ctx);
+        draw();
     }, tickRate);
 
     var canvas = $("canvas");
@@ -146,7 +146,7 @@ function initSocket(ctx) {
         //Init map
         map = new DrawableMap(data.map.width, data.map.height);
         adaptTileSize(ctx);
-        map.readData(data);
+        map.readData(data.map);
 
         socket.emit("msg", "loaded");
     });
@@ -240,15 +240,15 @@ function handleClick(x, y, dir) {
 }
 
 function getBounds(owner) {
-    var bounds = {
+    const bounds = {
         minX: startPos.x,
         minY: startPos.y,
         maxX: startPos.x,
-        maxY: startPos.y
+        maxY: startPos.y,
     };
 
     for (var u of this.map.units) {
-        if (u.unitModel.owner == owner) {
+        if (u.unitModel.owner === owner) {
             bounds.minX = Math.min(Math.max(0, u.x - 3), bounds.minX);
             bounds.maxX = Math.max(Math.min(map.width - 1, u.x + 3), bounds.maxX);
             bounds.minY = Math.min(Math.max(0, u.y - 3), bounds.minY);
@@ -287,16 +287,15 @@ function updateBrush() {
         brushY = bounds.minY;
         brushYVel = 1;
     }
-    if (brushActive == "x")
+    if (brushActive === "x")
         brushX += brushXVel;
-    if (brushActive == "y")
+    if (brushActive === "y")
         brushY += brushYVel;
-    if (brushActive == "dir")
+    if (brushActive === "dir")
         brushDir = (brushDir + 1) % 4;
 }
 
-
-function draw(ctx) {
+function draw() {
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -307,10 +306,11 @@ function draw(ctx) {
     if (bounds != null) {
         ctx.globalAlpha = 0.5;
         ctx.beginPath();
-        ctx.lineWidth = "1";
+        ctx.lineWidth = 1;
         ctx.setLineDash([tileSize / 3, tileSize / 2]);
         ctx.strokeStyle = "#000";
-        ctx.rect(bounds.minX * tileSize, bounds.minY * tileSize, (bounds.maxX - bounds.minX + 1) * tileSize, (bounds.maxY - bounds.minY + 1) * tileSize);
+        ctx.rect(bounds.minX * tileSize, bounds.minY * tileSize, (bounds.maxX - bounds.minX + 1) * tileSize,
+            (bounds.maxY - bounds.minY + 1) * tileSize);
         ctx.stroke();
         ctx.setLineDash([]);
         ctx.globalAlpha = 1;
@@ -318,37 +318,38 @@ function draw(ctx) {
 
     //Draw brush
 
-    if (brushActive == "x") {
+    if (brushActive === "x") {
         ctx.fillStyle = "#fff";
         ctx.globalAlpha = 0.2;
         ctx.fillRect(brushX * tileSize, bounds.minY * tileSize, tileSize, (bounds.maxY - bounds.minY + 1) * tileSize);
         ctx.globalAlpha = 1;
         ctx.beginPath();
-        ctx.lineWidth = "2";
+        ctx.lineWidth = 2;
         ctx.strokeStyle = "#f00";
         ctx.rect(brushX * tileSize, bounds.minY * tileSize, tileSize, (bounds.maxY - bounds.minY + 1) * tileSize);
         ctx.stroke();
     }
-    if (brushActive == "y" || brushActive == "dir") {
+    if (brushActive === "y" || brushActive === "dir") {
         ctx.fillStyle = "#fff";
         ctx.globalAlpha = 0.2;
         ctx.fillRect(brushX * tileSize, brushY * tileSize, tileSize, tileSize);
         ctx.globalAlpha = 1;
         ctx.beginPath();
-        ctx.lineWidth = "2";
+        ctx.lineWidth = 2;
         ctx.strokeStyle = "#f00";
         ctx.rect(brushX * tileSize, brushY * tileSize, tileSize, tileSize);
         ctx.stroke();
     }
 
-    if (brushActive == "dir") {
+    if (brushActive === "dir") {
         ctx.beginPath();
-        ctx.lineWidth = "2";
+        ctx.lineWidth = 2;
         ctx.strokeStyle = "#f00";
-        var startX = (brushX + 0.5) * tileSize;
-        var startY = (brushY + 0.5) * tileSize;
+        const startX = (brushX + 0.5) * tileSize;
+        const startY = (brushY + 0.5) * tileSize;
         ctx.moveTo(startX, startY);
-        var offsetX = 0, offsetY = 0;
+        let offsetX = 0;
+        let offsetY = 0;
         switch (brushDir) {
             case 0: //Up
                 offsetY = -1;
@@ -365,22 +366,21 @@ function draw(ctx) {
         }
         ctx.lineTo(startX + offsetX * tileSize, startY + offsetY * tileSize);
         ctx.stroke();
-    }   
+    }
 
     if (winner) {
         ctx.fillStyle = "#ccc";
-        var sizeX = 300;
-        var sizeY = 150;
+        const sizeX = 300;
+        const sizeY = 150;
         ctx.fillRect((ctx.canvas.width - sizeX) / 2, (ctx.canvas.height - sizeY) / 2, sizeX, sizeY);
         ctx.font = "30px Verdana";
         ctx.fillStyle = "#000000";
         ctx.fillText(winner + " wins!", (ctx.canvas.width - sizeX) / 2 + 20, (ctx.canvas.height - sizeY) / 2 + 20);
     }
-};
-
+}
 
 window.onload = function () {
-    var c = <HTMLCanvasElement>document.getElementById("canvas");
+    const c = <HTMLCanvasElement>document.getElementById("canvas");
     ctx = c.getContext("2d");
 
     divLogin = $("#login");

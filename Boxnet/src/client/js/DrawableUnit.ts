@@ -1,20 +1,23 @@
 
 import * as Models from "./../../shared/Models";
 import { AnimatedSprite, Sprite } from "./SpriteSheet";
+import { DrawableMap } from "./DrawableMap";
 
 const drawPadding = .1;
 const playerColors = ["#00FF00", "#FF0000", "#FFFF00"];
 
 export class DrawableUnit {
-    unitModel:Models.UnitModel
-    x:number;
+    public unitModel:Models.UnitModel;
+    public x:number;
     y:number;
     hp:number;
     target:DrawableUnit;
     animationData:AnimationData;
     sprite:Sprite;
+    id:number;
+    map:DrawableMap;
 
-    constructor(x, y, unitModel) {
+    constructor(x:number, y:number, unitModel:Models.UnitModel) {
         this.unitModel = unitModel;
         this.x = x;
         this.y = y;
@@ -25,33 +28,33 @@ export class DrawableUnit {
         //this.img = this.map.getImage(this.unitModel.type);
     }
 
-    initAnimation(animatedSprite, anim) {
+    initAnimation(animatedSprite:AnimatedSprite, anim:string) {
         this.animationData = new AnimationData(animatedSprite);
         //this.animationData.set
     }
 
-    initSprite(sprite) {
+    initSprite(sprite:Sprite) {
         this.sprite = sprite;
     }
 
-    update(ms) {
+    update(ms:number) {
         if (this.animationData)
             this.animationData.update(ms);
     }
 
-    draw(ctx, tileSize) {
+    draw(ctx:CanvasRenderingContext2D, tileSize:number) {
 
         if (this.animationData) {
             this.animationData.draw(ctx, this.x * tileSize, this.y * tileSize, tileSize, tileSize);
-        }
-        else {
+        } else {
             this.sprite.draw(ctx, this.x * tileSize, this.y * tileSize, tileSize, tileSize);
         }
         // ctx.fillStyle = this.getColor();
         // //console.log("drawing ", this, ctx.fillStyle, tileSize);
         // var padding = (tileSize * drawPadding);
         // if (this.unitModel.type == "core")
-        //     ctx.fillRect(this.x * tileSize + padding - tileSize, this.y * tileSize + padding - tileSize, tileSize * 3 - 2 * padding, tileSize * 3 - 2 * padding);
+        //     ctx.fillRect(this.x * tileSize + padding - tileSize, this.y * tileSize + padding - tileSize,
+        //         tileSize * 3 - 2 * padding, tileSize * 3 - 2 * padding);
         // else
         //     ctx.fillRect(this.x * tileSize + padding, this.y * tileSize + padding, tileSize - 2 * padding, tileSize - 2 * padding);
 
@@ -72,10 +75,10 @@ export class DrawableUnit {
         //hp
         if (this.hp < this.unitModel.hp) {
             ctx.strokeStyle = "#00FF00";
-            ctx.lineWidth = "1";
+            ctx.lineWidth = 1;
             ctx.beginPath();
-            var hpPerc = this.hp / this.unitModel.hp;
-            var inverseHalf = (1 - hpPerc) / 2;
+            const hpPerc = this.hp / this.unitModel.hp;
+            const inverseHalf = (1 - hpPerc) / 2;
             ctx.moveTo((this.x + inverseHalf) * tileSize + 1, this.y * tileSize + 1);
             ctx.lineTo((this.x + 1 - inverseHalf) * tileSize - 1, this.y * tileSize + 1);
             ctx.stroke();
@@ -99,8 +102,8 @@ export class DrawableUnit {
 
 class AnimationData {
     currentFrame:number;
-    _fps:number;
-    _frameTime:number;
+    private pfps:number;
+    private pframeTime:number;
     frameTimePassed:number;
     animatedSprite:AnimatedSprite;
     startFrame:number;
@@ -117,12 +120,12 @@ class AnimationData {
         this.pingPong = false;
     }
 
-    set fps(i) {
-        this._fps = i;
-        this._frameTime = 1000.0 / i;
+    set fps(i:number) {
+        this.pfps = i;
+        this.pframeTime = 1000.0 / i;
     }
 
-    setFrame(i) {
+    setFrame(i:number) {
         this.currentFrame = i % this.animatedSprite.frameCount;
     }
 
@@ -130,19 +133,17 @@ class AnimationData {
         this.setFrame(this.currentFrame + 1);
     }
 
-    update(ms) {
+    update(ms:number) {
         this.frameTimePassed += ms;
-        while (this.frameTimePassed >= this._frameTime) {
-            this.frameTimePassed -= this._frameTime;
+        while (this.frameTimePassed >= this.pframeTime) {
+            this.frameTimePassed -= this.pframeTime;
             this.nextFrame();
         }
     }
 
-    draw(ctx, x, y, w, h) {
-        var sprite = this.animatedSprite.getFrame(this.currentFrame);
+    draw(ctx:CanvasRenderingContext2D, x:number, y:number, w:number, h:number) {
+        const sprite = this.animatedSprite.getFrame(this.currentFrame);
         sprite.draw(ctx, x, y, w, h);
     }
 
 }
-
-

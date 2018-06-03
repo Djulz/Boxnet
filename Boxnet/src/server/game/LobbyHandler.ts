@@ -14,27 +14,27 @@ class LobbyHandler {
 
     lobbies:Lobby[];
     tickRate:number;
-    updateLoop:number;
-    constructor(tickRate) {
+    updateLoop:NodeJS.Timer;
+    constructor(tickRate:number) {
         this.lobbies = [];
         this.tickRate = tickRate;
 
-        var handler = this;
+        const handler = this;
         this.updateLoop = setInterval(() => {
             handler.update(tickRate);
         }, tickRate);
     }
 
-    update(tickRate) {
-        for (var l in this.lobbies)
+    update(tickRate:number) {
+        for (const l in this.lobbies)
             this.lobbies[l].update(tickRate);
     }
 
-    onJoin(player, data) {
+    onJoin(player:Player, data:any) {
         this.joinOrCreateLobby(player, data.lobbyName);
     }
 
-    onMessage(player, msg) {
+    onMessage(player:Player, msg:string) {
         console.log("msg", msg);
         switch (msg) {
             case "loaded":
@@ -49,24 +49,24 @@ class LobbyHandler {
         }
     }
 
-    onInput(player, data) {
+    onInput(player:Player, data:any) {
         if (player.lobby)
             player.lobby.onInput(player, data);
     }
 
-    onDisconnect(player) {
+    onDisconnect(player:Player) {
         this.removePlayer(player);
     }
 
-    removePlayer(player) {
+    removePlayer(player:Player) {
         if (player.lobby) {
             player.lobby.removePlayer(player);
         }
     }
 
-    joinOrCreateLobby(player, lobbyName) {
+    joinOrCreateLobby(player:Player, lobbyName:string) {
         console.log("joinOrCreateLobby", lobbyName);
-        var lobby = this.lobbies[lobbyName];
+        let lobby = this.lobbies[lobbyName];
         console.log("lobbies", this.lobbies);
         if (lobby == null) {
             //Lobby does not exist so we create

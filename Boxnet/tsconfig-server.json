@@ -3,14 +3,10 @@
         "outDir": "dist/server",
         "allowJs": true,
         "target": "es6",
-        //"noEmitOnError": true,
         "module": "commonjs",
-        "esModuleInterop": true,
-        //"rootDir": "./../"
-        //"moduleResolution": "node"
+        "esModuleInterop": true
     },
     "include": [
         "src/server/**/*", "src/shared/**/*"
     ]
-    //,"files": ["./../shared/Models.ts"]
 }

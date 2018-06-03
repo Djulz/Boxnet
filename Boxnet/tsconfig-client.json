@@ -3,14 +3,11 @@
         "outDir": "dist/client",
         "allowJs": true,
         "target": "es6",
-        //"noEmitOnError": true,
         "module": "commonjs",
         "esModuleInterop": true,
-        //"rootDir": "./../"
-        //"moduleResolution": "node"
+        "noImplicitAny": true
     },
     "include": [
         "src/client/**/*", "src/shared/**/*"
     ]
-    //,"files": ["./../shared/Models.ts"]
 }

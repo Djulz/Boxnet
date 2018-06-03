@@ -1,17 +1,17 @@
 import { Tile } from "./Tile";
 import { Player } from "./Player";
-import { Direction } from "./Common"
-import * as Models from "./../../shared/Models"
+import { Direction } from "./Common";
+import * as Models from "./../../shared/Models";
 
 //var Models = require('./../public/js/models/Models');
 //var DMath = require('./DMath');
 //var Common = require('./Common');
 //var UnitFactory = require('./factories/UnitFactory');
 
-export class Unit {
+export abstract class Unit {
 
     name: string;
-    dir: Direction
+    dir: Direction;
     owner: Player;
     hp: number;
     id: number;
@@ -25,7 +25,7 @@ export class Unit {
         this.id = -1;
     }
 
-    onInit(owner, dir) {
+    onInit(owner:Player, dir:Direction) {
         this.dir = dir;
         this.owner = owner;
         this.init();
@@ -33,21 +33,21 @@ export class Unit {
 
     init() { }
 
-    onUpdate(ms) {
+    public onUpdate(ms:number) {
         this.update(ms);
     }
 
-    update(ms) {
+    protected update(ms:number) {
 
     }
 
-    takeDamage(dmg) {
+    takeDamage(dmg:number) {
         this.hp = Math.max(this.hp - dmg, 0);
         console.log("dmg -" + dmg, this.hp);
         this.tile.map.game.onEvent("unitUpdate", {
             type: "dmg",
             unitId: this.id,
-            hp: this.hp
+            hp: this.hp,
         });
         if (!this.IsAlive) {
             this.die();
@@ -67,7 +67,6 @@ export class Unit {
     }
 }
 
-
 class Grower extends Unit {
 
     growReach: number;
@@ -78,7 +77,7 @@ class Grower extends Unit {
     tilesQueued: Tile[];
     iGrown: number;
 
-    constructor(growType, tileToGrow, growReach, growPeriod) {
+    constructor(growType:string, tileToGrow:string, growReach:number, growPeriod:number) {
         super("grower");
         this.growReach = growReach;
         this.growPeriod = growPeriod;
@@ -89,9 +88,9 @@ class Grower extends Unit {
         this.iGrown = 0;
     }
 
-    update(ms) {
+    update(ms:number) {
 
-        if (this.tile.map.game.tick % 10 == 0)
+        if (this.tile.map.game.tick % 10 === 0)
             this.queueTiles();
 
         while (this.growCooldown <= 0) {
@@ -103,35 +102,36 @@ class Grower extends Unit {
     }
 
     queueTiles() {
-        this.tilesQueued = this.tile.getTilesAtDistancePathFilter(this.growReach, true, [], ["mountain"]).map(x=> x.tile);
+        this.tilesQueued = this.tile.getTilesAtDistancePathFilter(this.growReach, true, [], ["mountain"]).map(x => x.tile);
     }
 
     grow() {
-        var xOffset = 0, yOffset = 0, tile;
-        if (this.growType == "line") {
-            if (this.dir == Direction.Left || this.dir == Direction.Right) {
+        let xOffset = 0;
+        let yOffset = 0;
+        let tile:Tile;
+        if (this.growType === "line") {
+            if (this.dir === Direction.Left || this.dir === Direction.Right) {
                 tile = this.tile.map.getTile(this.tile.x + xOffset, this.tile.y);
-                while (tile != null && tile.typeString == this.tileToGrow && Math.abs(xOffset) < this.growReach) {
-                    xOffset += (this.dir == Direction.Left ? -1 : 1);
+                while (tile != null && tile.typeString === this.tileToGrow && Math.abs(xOffset) < this.growReach) {
+                    xOffset += (this.dir === Direction.Left ? -1 : 1);
                     tile = this.tile.map.getTile(this.tile.x + xOffset, this.tile.y);
                 }
             }
-            if (this.dir == Direction.Up || this.dir == Direction.Down) {
+            if (this.dir === Direction.Up || this.dir === Direction.Down) {
                 tile = this.tile.map.getTile(this.tile.x, this.tile.y + yOffset);
-                while (tile != null && tile.typeString == this.tileToGrow && Math.abs(yOffset) < this.growReach) {
-                    yOffset += (this.dir == Direction.Up ? -1 : 1);
+                while (tile != null && tile.typeString === this.tileToGrow && Math.abs(yOffset) < this.growReach) {
+                    yOffset += (this.dir === Direction.Up ? -1 : 1);
                     tile = this.tile.map.getTile(this.tile.x, this.tile.y + yOffset);
                 }
             }
 
-            if (tile != null && tile.typeString != this.tileToGrow) {
+            if (tile != null && tile.typeString !== this.tileToGrow) {
                 tile.changeType(this.tileToGrow);
                 //console.log("grow to ", this.tile.x + xOffset, this.tile.y, this.tileToGrow);
             }
-        }
-        else if (this.growType == "circle") {
-            for (var t of this.tilesQueued) {
-                if (t.typeString != this.tileToGrow) {
+        } else if (this.growType === "circle") {
+            for (const t of this.tilesQueued) {
+                if (t.typeString !== this.tileToGrow) {
                     t.changeType(this.tileToGrow);
                     //console.log("grow to ", t.tile.x, t.tile.y, this.tileToGrow);
                     break;
@@ -151,7 +151,7 @@ class Shooter extends Unit {
     timeUntilNextShot:number;
     target:Unit;
 
-    constructor(range, dmg, reloadTime) {
+    constructor(range:number, dmg:number, reloadTime:number) {
         super("shooter");
         this.range = range;
         this.dmg = dmg;
@@ -160,7 +160,7 @@ class Shooter extends Unit {
         this.target = null;
     }
 
-    update(ms) {
+    update(ms:number) {
         if (this.timeUntilNextShot <= 0) {
             this.timeUntilNextShot += this.reloadTime;
             this.shoot();
@@ -170,10 +170,10 @@ class Shooter extends Unit {
     }
 
     findTarget() {
-        var units = this.tile.getUnitsAtDistance(this.range, true);
-        var hostile = units.filter(x => x.owner != this.owner);//.map(x => x.tile.units[0]);//.filter(x => x.owner != this.owner)
-        var target = null;
-        for (var h of hostile) {
+        const units = this.tile.getUnitsAtDistance(this.range, true);
+        const hostile = units.filter(x => x.owner !== this.owner); //.map(x => x.tile.units[0]);//.filter(x => x.owner != this.owner)
+        let target = null;
+        for (const h of hostile) {
             if (this.tile.map.checkLineOfSight(this.tile.x, this.tile.y, h.tile.x, h.tile.y)) {
                 target = h;
                 console.log("target accuired", target.name);
@@ -185,14 +185,14 @@ class Shooter extends Unit {
 
     shoot() {
         if (this.target == null || !this.target.IsAlive) {
-            var newTarget = this.findTarget();
-            if (newTarget != this.target) {
+            const newTarget = this.findTarget();
+            if (newTarget !== this.target) {
                 //Found new target
                 this.target = newTarget;
                 this.tile.map.game.onEvent("unitUpdate", {
                     type: "newTarget",
                     unitId: this.id,
-                    targetId: this.target != null ? this.target.id : -1
+                    targetId: this.target != null ? this.target.id : -1,
                 });
             }
         }
@@ -204,7 +204,7 @@ class Shooter extends Unit {
     }
 
     get Model() {
-        var model = super.Model;
+        const model = super.Model;
         model.targetId = this.target != null ? this.target.id : -1;
         return model;
     }
@@ -215,14 +215,14 @@ class Ticker extends Unit {
     tickCooldown:number;
     tickEnabled:boolean;
 
-    constructor(name, tickTime) {
+    constructor(name:string, tickTime:number) {
         super(name);
         this.tickTime = tickTime;
         this.tickCooldown = tickTime;
         this.tickEnabled = true;
     }
 
-    update(ms) {
+    update(ms:number) {
         if (this.tickCooldown <= 0) {
             this.tickCooldown += this.tickTime;
             this.tick();
@@ -240,7 +240,7 @@ class Tunneler extends Ticker {
     tilesTunneled:number;
     otherEnd:Tunneler;
     currentTile:Tile;
-    constructor(range, tunnelTime) {
+    constructor(range:number, tunnelTime:number) {
         super("tunneler", tunnelTime);
         this.range = range;
         this.tilesTunneled = 0;
@@ -256,14 +256,14 @@ class Tunneler extends Ticker {
             return;
 
         //Check tile
-        var nextTile = this.currentTile.getDirection(this.dir);
+        const nextTile = this.currentTile.getDirection(this.dir);
         if (this.tilesTunneled < this.range && nextTile != null) {
             this.tilesTunneled++;
             this.currentTile = nextTile;
-        }
-        else if (this.tilesTunneled > 0) {
+        } else if (this.tilesTunneled > 0) {
             //Reached dest
-            var unit = this.tile.map.game.addUnit(this.currentTile.x, this.currentTile.y, this.dir, this.owner, createUnit("tunneler"));
+            const unit = this.tile.map.game.addUnit(this.currentTile.x, this.currentTile.y,
+                this.dir, this.owner, createUnit("tunneler")) as Tunneler;
             unit.otherEnd = this;
             this.otherEnd = unit;
         }
@@ -279,7 +279,7 @@ class Tunneler extends Ticker {
 class Quaker extends Ticker {
     range:number;
     dmg:number;
-    constructor(range, dmgCooldown, dmg) {
+    constructor(range:number, dmgCooldown:number, dmg:number) {
         super("quaker", dmgCooldown);
         this.range = range;
         this.dmg = dmg;
@@ -287,8 +287,8 @@ class Quaker extends Ticker {
     }
 
     tick() {
-        var units = this.tile.getUnitsAtDistance(this.range);//.filter(x=> x.owner != this.owner)
-        for (var u of units)
+        const units = this.tile.getUnitsAtDistance(this.range); //.filter(x=> x.owner != this.owner)
+        for (const u of units)
             u.takeDamage(this.dmg);
     }
 }
@@ -313,4 +313,3 @@ export function createUnit(type:string):Unit {
             return new Quaker(5, 1000, 10);
     }
 }
-
