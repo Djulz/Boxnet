@@ -17,7 +17,7 @@ export class MapGenerator {
     }
 
     addCP(x:number, y:number, type:string) {
-        const cp =new ControlPoint();
+        const cp = new ControlPoint();
         cp.x = x;
         cp.y = y;
         cp.type = type;
