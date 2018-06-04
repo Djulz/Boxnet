@@ -3,7 +3,7 @@ import { Unit, createUnit } from "./Unit";
 import { IAccount } from "./../models/Account";
 import { Lobby } from "./Lobby";
 import * as Models from "./../../shared/Models";
-import * as Common from "./Common";
+import * as Common from "./../../shared/Common";
 
 // var Models = require('./../public/js/models/Models');
 // var Common = require('./Common');
@@ -36,7 +36,8 @@ export class Player {
     }
 
     disconnect(msg:string) {
-        this.socket.disconnect(msg);
+        console.log("Disconnect:", this.account.name, msg);
+        this.socket.disconnect();
     }
 
     setStartPos(x:number, y:number) {

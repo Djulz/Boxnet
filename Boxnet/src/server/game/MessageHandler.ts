@@ -1,6 +1,7 @@
 import { LobbyHandler } from "./LobbyHandler";
 import { Player } from "./Player";
 import { Socket } from "socket.io";
+import { IAccount } from "../models/Account";
 
 class MessageHandler {
 

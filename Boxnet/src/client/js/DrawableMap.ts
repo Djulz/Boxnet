@@ -1,17 +1,18 @@
 import { DrawableUnit } from "./DrawableUnit";
 import { DrawableTile } from "./DrawableTile";
 import { SpriteSheet } from './SpriteSheet';
+import * as Common from "../../shared/Common";
 import { TileModel, UnitModel, MapModel } from "../../shared/Models";
 
 export class DrawableMap {
 
-    private width: number;
-    private height:number;
+    public width: number;
+    public height:number;
     private tiles: DrawableTile[][];
     private units: DrawableUnit[];
     private unitMap: DrawableUnit[];
     public spriteSheet:SpriteSheet;
-    private mapUnitToAnim: string[any];
+    private mapUnitToAnim:Common.StringArray<string>;
     constructor(w:number, h:number) {
         this.width = w;
         this.height = h;
@@ -28,7 +29,7 @@ export class DrawableMap {
         //this.loadImages();
     }
 
-    private readData(map:MapModel) {
+    public readData(map:MapModel) {
         for (let x = 0; x < map.width; x++) {
             this.tiles[x] = [] as DrawableTile[];
             for (let y = 0; y < map.height; y++) {
@@ -65,7 +66,7 @@ export class DrawableMap {
         }
     }
 
-    public updateUnit(data) {
+    public updateUnit(data:any) {
         const unit = this.unitMap[data.unitId];
         if (unit != null) {
             switch (data.type) {

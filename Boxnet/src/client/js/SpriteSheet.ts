@@ -1,4 +1,5 @@
 import * as $ from "jquery";
+import * as Common from "./../../shared/Common";
 
 interface IMyType {
     [index: string]: Sprite[];
@@ -7,17 +8,17 @@ interface IMyType {
 const spriteDefaultName: string = "default";
 
 export class SpriteSheet {
-    sprites: Sprite[];
+    sprites: Common.StringArray<Sprite>;
     img: any;
-    animations: AnimatedSprite[];
+    animations: Common.StringArray<AnimatedSprite>;
     variants: IMyType;
 
     constructor(path: string) {
-        this.sprites = [];
+        this.sprites = {};
         this.img = null;
         this.readImageFromFile(path + ".png");
         this.readJsonFromFile(path + ".json");
-        this.animations = [];
+        this.animations = {};
         //this.variants = [] as MyType;
     }
 
@@ -39,7 +40,7 @@ export class SpriteSheet {
 
         $.getJSON(path, (data) => {
 
-            const anims = [];
+            const anims:Common.StringArray<Sprite[]> = {};
             for (const spriteKey in data) {
                 if (data[spriteKey]) {
                     const d = data[spriteKey];

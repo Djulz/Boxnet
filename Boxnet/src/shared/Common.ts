@@ -32,8 +32,6 @@ export function randomObjectInArray(array:any[]) {
     return array[DMath.getRandomInt(0, array.length)];
 }
 
-// module.exports = {
-//     Direction: Direction,
-//     TileType:  TileType,
-//     randomObjectInArray:  randomObjectInArray
-// };
+export interface StringArray<T> {
+    [index:string]:T;
+}

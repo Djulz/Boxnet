@@ -2,9 +2,9 @@ import { Game } from "./Game";
 import { Tile } from "./Tile";
 import { Unit } from "./Unit";
 import { MapGenerator } from "./MapGenerator";
-import * as DMath from "./DMath";
+import * as DMath from "./../../shared/DMath";
 import * as Models from "./../../shared/Models";
-import { Direction } from "./Common";
+import { Direction } from "./../../shared/Common";
 import { Player } from "./Player";
 
 //var Models = require('./../public/js/models/Models');

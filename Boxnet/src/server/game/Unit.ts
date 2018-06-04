@@ -1,6 +1,6 @@
 import { Tile } from "./Tile";
 import { Player } from "./Player";
-import { Direction } from "./Common";
+import { Direction } from "./../../shared/Common";
 import * as Models from "./../../shared/Models";
 
 //var Models = require('./../public/js/models/Models');

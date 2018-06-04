@@ -2,7 +2,7 @@ import { TileMap } from "./Map";
 import { Player } from "./Player";
 import { Lobby } from "./Lobby";
 import { Unit } from "./Unit";
-import { Direction } from "./Common";
+import { Direction } from "./../../shared/Common";
 
 class GameEvent {
     event:string;

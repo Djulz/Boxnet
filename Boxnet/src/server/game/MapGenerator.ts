@@ -1,6 +1,6 @@
 import { TileMap } from "./Map";
 import { Tile } from "./Tile";
-import * as DMath from "./DMath";
+import * as DMath from "./../../shared/DMath";
 
 //var DMath = require('./DMath');
 
@@ -17,11 +17,11 @@ export class MapGenerator {
     }
 
     addCP(x:number, y:number, type:string) {
-        this.cps.push({
-            x: x,
-            y: y,
-            type: type,
-        });
+        const cp =new ControlPoint();
+        cp.x = x;
+        cp.y = y;
+        cp.type = type;
+        this.cps.push(cp);
     }
 
     generateWithCPs(grass:number, mountain:number) {

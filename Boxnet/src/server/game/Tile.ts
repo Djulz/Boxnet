@@ -1,6 +1,6 @@
 import { TileMap } from "./Map";
 import { Unit } from "./Unit";
-import * as Common from "./Common";
+import * as Common from "./../../shared/Common";
 
 //var Common = require('./Common');
 
