@@ -23,7 +23,8 @@ class MessageHandler {
         let player = this.getPlayerFromSocket(socket);
         if (!player)
             player = new Player(socket, account);
-
+        else
+            player.reconnect(socket);
         this.players[socket.request.user._id] = player;
         return player;
     }

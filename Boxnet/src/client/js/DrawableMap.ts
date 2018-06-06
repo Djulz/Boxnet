@@ -8,8 +8,8 @@ export class DrawableMap {
 
     public width: number;
     public height:number;
-    private tiles: DrawableTile[][];
-    private units: DrawableUnit[];
+    public tiles: DrawableTile[][];
+    public units: DrawableUnit[];
     private unitMap: DrawableUnit[];
     public spriteSheet:SpriteSheet;
     private mapUnitToAnim:Common.StringArray<string>;
@@ -21,7 +21,7 @@ export class DrawableMap {
         this.unitMap = [];
         this.spriteSheet = new SpriteSheet('./../data/spritesheet');
 
-        //this.mapUnitToAnim = [];
+        this.mapUnitToAnim = {};
         this.mapUnitToAnim['tunneler'] = 'drill';
         this.mapUnitToAnim["quaker"] = "quaker_";
         this.mapUnitToAnim["grower"] = "grower";

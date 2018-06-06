@@ -12,10 +12,10 @@ import { Lobby } from "./Lobby";
 
 class LobbyHandler {
 
-    lobbies:Lobby[];
-    tickRate:number;
-    updateLoop:NodeJS.Timer;
-    constructor(tickRate:number) {
+    lobbies: Lobby[];
+    tickRate: number;
+    updateLoop: NodeJS.Timer;
+    constructor(tickRate: number) {
         this.lobbies = [];
         this.tickRate = tickRate;
 
@@ -25,16 +25,21 @@ class LobbyHandler {
         }, tickRate);
     }
 
-    update(tickRate:number) {
-        for (const l in this.lobbies)
-            this.lobbies[l].update(tickRate);
+    update(tickRate: number) {
+        for (const l in this.lobbies) {
+            if (this.lobbies[l]) {
+                this.lobbies[l].update(tickRate);
+                if (this.lobbies[l].hasEnded)
+                    this.lobbies[l] = null;
+            }
+        }
     }
 
-    onJoin(player:Player, data:any) {
+    onJoin(player: Player, data: any) {
         this.joinOrCreateLobby(player, data.lobbyName);
     }
 
-    onMessage(player:Player, msg:string) {
+    onMessage(player: Player, msg: string) {
         console.log("msg", msg);
         switch (msg) {
             case "loaded":
@@ -49,22 +54,22 @@ class LobbyHandler {
         }
     }
 
-    onInput(player:Player, data:any) {
+    onInput(player: Player, data: any) {
         if (player.lobby)
             player.lobby.onInput(player, data);
     }
 
-    onDisconnect(player:Player) {
+    onDisconnect(player: Player) {
         this.removePlayer(player);
     }
 
-    removePlayer(player:Player) {
+    removePlayer(player: Player) {
         if (player.lobby) {
             player.lobby.removePlayer(player);
         }
     }
 
-    joinOrCreateLobby(player:Player, lobbyName:string) {
+    joinOrCreateLobby(player: Player, lobbyName: string) {
         console.log("joinOrCreateLobby", lobbyName);
         let lobby = this.lobbies[lobbyName];
         console.log("lobbies", this.lobbies);
@@ -81,8 +86,9 @@ class LobbyHandler {
             // if (otherPlayer)
             //     otherPlayer.disconnect("Someone else logged in to your account");
             //else
-                //console.error("could not find other player logged in")
+            //console.error("could not find other player logged in")
             console.log("Already in room");
+            player.lobby.removePlayer(player);
         }
 
         lobby.addPlayer(player, null);

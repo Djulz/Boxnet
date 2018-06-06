@@ -116,9 +116,9 @@ export class Tile {
 
         while (queue.length > 0) {
             const td = queue.shift();
-            if (excludeTileFilter.includes(td.t.typeString))
+            if (excludeTileFilter.indexOf(td.t.typeString) >= 0)
                 continue;
-            if (includeTileFilter.length > 0 && !includeTileFilter.includes(td.t.typeString))
+            if (includeTileFilter.length > 0 && includeTileFilter.indexOf(td.t.typeString) < 0 )
                 continue;
 
             res.push(td.t);
@@ -126,7 +126,7 @@ export class Tile {
                 const dirs = [td.t.Left, td.t.Right, td.t.Up, td.t.Down];
                 for (let i = 0; i < dirs.length; i++) {
                     const dir = dirs[i];
-                    if (dir != null && !visited.includes(dir.Id)) {
+                    if (dir != null && visited.indexOf(dir.Id) < 0) {
                         queue.push({ t: dir, d: td.d - 1 });
                         visited.push(dir.Id);
                     }

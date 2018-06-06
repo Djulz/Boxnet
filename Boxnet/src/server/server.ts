@@ -8,7 +8,6 @@ const mongoose = require('mongoose');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-
 import {LobbyHandler} from './game/LobbyHandler';
 import {MessageHandler} from './game/MessageHandler';
 import * as GoogleStrategy from 'passport-google-oauth20';
@@ -17,13 +16,12 @@ import * as LocalStrategy from 'passport-local';
 import {Account} from './models/Account';
 
 //Static
-var publicFolder = './../../client';
+const publicFolder = path.join(__dirname, './../../client');
 app.use(express.static(publicFolder));
 
 app.use(bodyParser.urlencoded({ extended: false, inflate: true }));
 app.use(bodyParser.json({ strict: true, inflate: true }));
 app.use(cookieParser());
-
 
 //session store
 var session = require('express-session');
@@ -31,7 +29,9 @@ const MongoStore = require('connect-mongo')(session);
 var sessionStore = new MongoStore({ mongooseConnection: mongoose.connection });
 app.use(session({
     secret: 'IUsuallyLikeBananas',
-    store: sessionStore
+    store: sessionStore,
+    resave:false,
+    saveUninitialized: false,
 }));
 
 passport.use(new GoogleStrategy.Strategy({
@@ -155,13 +155,13 @@ app.get('/', function (req, res) {
 
 app.get('/game', function (req, res) {
     if (req.isAuthenticated())
-        res.sendFile(path.join(__dirname, publicFolder, 'game.html'));
+        res.sendFile(path.join(publicFolder, 'game.html'));
     else
         res.redirect('/login');
 });
 
 app.get('/login', function (req, res) {
-    res.sendFile(path.join(__dirname, publicFolder, 'login.html'));
+    res.sendFile(path.join(publicFolder, 'login.html'));
 });
 
 app.get('/auth/google',

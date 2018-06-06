@@ -40,13 +40,18 @@ export class Player {
         this.socket.disconnect();
     }
 
+    reconnect(socket: SocketIO.Socket): void {
+        this.socket = socket;
+        console.log("Reconnect:", this.account.name);
+    }
+
     setStartPos(x:number, y:number) {
         this.playerStartX = x;
         this.playerStartY = y;
     }
 
     get name() {
-        return this.account.name;
+        return this.socket.id;
     }
 
     emit(str:string, data:any) {

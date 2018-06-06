@@ -36,7 +36,9 @@
   },
   "scripts": {
     "start": "babel-node index.js --presets es2015,stage-2",
-    "build": "babel dist -d dist --presets es2015,stage-2",
-    "serve": "node dist/server.js"
+    "buildc": "tsc --p ./tsconfig-client.json && browserify ./dist/client/client/js/main.js -o ./dist/client/client/js/bundle.js",
+    "builds": "tsc --p ./tsconfig-server.json",
+    "build": "npm run buildc && npm run builds",
+    "serve": "node ./dist/server/server/server.js"
   }
 }

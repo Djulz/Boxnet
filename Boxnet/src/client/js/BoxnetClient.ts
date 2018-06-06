@@ -1,38 +1,39 @@
 import { DrawableMap } from "./DrawableMap";
 import * as Common from "../../shared/Common";
+import * as Models from "../../shared/Models";
 import { Point } from "../../shared/DMath";
 import { DrawableUnit } from "./DrawableUnit";
-var sio = require('socket.io-client');
+const sio = require("socket.io-client");
 
 enum GameState {
     Login,
     Lobby,
     Loading,
     Game,
-};
+}
 
 export class BoxnetClient {
 
     tileSize: number = 20;
     tickRate: number = 100;
     startPos: Point = null;
-    bounds = null;
+    bounds: any = null;
     brushMoving: boolean = true;
-    ctx;
+    ctx: CanvasRenderingContext2D;
 
     map: DrawableMap;
     nextUnits: string[] = [];
-    socket: sio.Socket;
-    winner = null;
+    socket: SocketIO.Socket;
+    winner: any = null;
 
     gameState: GameState;
 
-    divLogin;
-    divLobby;
-    divLoading;
-    divGame;
+    divLogin: any;
+    divLobby: any;
+    divLoading: any;
+    divGame: any;
 
-    brushX = 0;
+    brushX: number = 0;
     brushY: number = 0;
     brushDir: number = 0;
     brushXVel: number = 1;
@@ -41,15 +42,48 @@ export class BoxnetClient {
     debug: boolean = true;
     myId: number = -1;
 
-    intGameLoop: number;
+    intGameLoop: any;
 
-    newState(state) {
+    onLoad(ctx:CanvasRenderingContext2D) {
+        this.ctx = ctx;
+        this.divLogin = $("#login");
+        this.divLobby = $("#lobby");
+        this.divLoading = $("#loading");
+        this.divGame = $("#game");
 
-        if (this.gameState == state)
+        this.initSocket(ctx);
+        this.newState(GameState.Login);
+
+        const debug = $("#debug");
+        setInterval(() => {
+            $(debug).text("brush(" + this.brushX + "," + this.brushY + ")");
+        }, 100);
+
+        //join lobby
+        $("#btn-login").click(() => {
+            const input = $("input#input-lobby");
+            if (input.val() !== "")
+                this.socket.emit("join", { lobbyName: input.val() });
+        });
+
+        $("#btn-ready").click(() => {
+            if ($("#btn-ready").text() === "Ready") {
+                this.socket.emit("msg", "ready");
+                $("#btn-ready").text("Not Ready");
+            } else {
+                this.socket.emit("msg", "notready");
+                $("#btn-ready").text("Ready");
+            }
+        });
+    }
+
+    newState(state: GameState) {
+
+        if (this.gameState === state)
             return;
 
         //leaving game
-        if (this.gameState == GameState.Game) {
+        if (this.gameState === GameState.Game) {
             this.reset();
         }
 
@@ -83,15 +117,15 @@ export class BoxnetClient {
 
     onEnterGame() {
         this.intGameLoop = setInterval(() => {
-            update(this.tickRate);
-            draw();
+            this.update(this.tickRate);
+            this.draw(this.ctx);
         }, this.tickRate);
 
-        var canvas = $("canvas");
+        const canvas = $("canvas");
         canvas.click((ev) => {
-            if (this.debug == true) {
-                var x = Math.floor(ev.offsetX / this.tileSize);
-                var y = Math.floor(ev.offsetY / this.tileSize);
+            if (this.debug === true) {
+                const x = Math.floor(ev.offsetX / this.tileSize);
+                const y = Math.floor(ev.offsetY / this.tileSize);
                 this.handleClick(x, y, 0);
             } else {
                 this.brushMoving = false;
@@ -105,14 +139,14 @@ export class BoxnetClient {
         // });
     }
 
-    updateNextUnits(units) {
+    updateNextUnits(units: string[]) {
         this.nextUnits = units;
-        $("#nextUnits").text(units);
+        $("#nextUnits").text(units.toString());
     }
 
-    adaptTileSize(ctx) {
-        var xSize = Math.floor(ctx.canvas.width / this.map.width);
-        var ySize = Math.floor(ctx.canvas.height / this.map.height);
+    adaptTileSize(ctx: CanvasRenderingContext2D) {
+        const xSize = Math.floor(ctx.canvas.width / this.map.width);
+        const ySize = Math.floor(ctx.canvas.height / this.map.height);
         this.tileSize = Math.min(xSize, ySize);
         console.log("setting tilesize to ", this.tileSize);
     }
@@ -123,7 +157,7 @@ export class BoxnetClient {
                 this.brushActive = "x";
                 break;
             case "x":
-                this.brushActive = "y"
+                this.brushActive = "y";
                 break;
             case "y":
                 this.brushActive = "dir";
@@ -135,15 +169,15 @@ export class BoxnetClient {
         }
     }
 
-    handleClick(x, y, dir) {
+    handleClick(x: number, y: number, dir: any) {
         console.log("clicked ", x, y, dir);
-        if (this.map.tiles[x][y].typeString != "mountain")
-            socket.emit("input", new Models.InputModel(x, y, dir));
+        if (this.map.tiles[x][y].typeString !== "mountain")
+            this.socket.emit("input", new Models.InputModel(x, y, dir));
         this.brushXVel *= -1;
         this.brushYVel *= -1;
     }
 
-    getBounds(owner) {
+    getBounds(owner: any) {
         const bounds = {
             minX: this.startPos.x,
             minY: this.startPos.y,
@@ -151,7 +185,7 @@ export class BoxnetClient {
             maxY: this.startPos.y,
         };
 
-        for (var u of this.map.units) {
+        for (const u of this.map.units) {
             if (u.unitModel.owner === owner) {
                 bounds.minX = Math.min(Math.max(0, u.x - 3), bounds.minX);
                 bounds.maxX = Math.max(Math.min(this.map.width - 1, u.x + 3), bounds.maxX);
@@ -163,7 +197,7 @@ export class BoxnetClient {
         return bounds;
     }
 
-    update(ms) {
+    update(ms: number) {
         this.updateBrush();
         this.map.update(ms);
     }
@@ -199,8 +233,7 @@ export class BoxnetClient {
             this.brushDir = (this.brushDir + 1) % 4;
     }
 
-
-    draw(ctx) {
+    draw(ctx: CanvasRenderingContext2D) {
 
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -289,37 +322,37 @@ export class BoxnetClient {
         }
     }
 
-    initSocket(ctx) {
+    initSocket(ctx: CanvasRenderingContext2D) {
 
-        var socket = sio();
-        socket.on('connect', (data) => {
+        this.socket = sio();
+        this.socket.on('connect', (data:any) => {
             console.log("connect");
         });
 
-        socket.on('accountData', (data) => {
+        this.socket.on('accountData', (data:any) => {
             console.log("accountData");
             $("#playerName").text(data.name);
         });
 
-        socket.on('disconnect', () => this.newState(GameState.Login));
+        this.socket.on('disconnect', () => this.newState(GameState.Login));
 
-        socket.on("lobbyData", (data) => {
-            //console.log(data);
+        this.socket.on("lobbyData", (data:any) => {
+            console.log(data);
             this.newState(GameState.Lobby);
             $("#gameInfo").text(data.name);
             $("#lobby #players").empty();
-            for (var p of data.players) {
+            for (const p of data.players) {
                 $("#lobby #players").append('<div class="player">' + p.name + ' (' + p.faction + ')</div>');
             }
         });
 
-        socket.on('loading', (data) => {
+        this.socket.on('loading', (data:any) => {
             console.log("loading");
             this.myId = data.playerId;
             this.newState(GameState.Loading);
         });
 
-        socket.on("loadingData", (data) => {
+        this.socket.on("loadingData", (data:any) => {
             console.log(data);
 
             //Next units
@@ -330,53 +363,53 @@ export class BoxnetClient {
             this.adaptTileSize(ctx);
             this.map.readData(data.map);
 
-            socket.emit("msg", "loaded");
+            this. socket.emit("msg", "loaded");
         });
 
-        socket.on('play', () => {
+        this.socket.on('play', () => {
             console.log("play");
             this.newState(GameState.Game);
         });
 
-        socket.on("tileUpdate", (data) => {
+        this.socket.on("tileUpdate", (data:any) => {
             //console.log("tileUpdate", data);
             this.map.updateTile(data.x, data.y, data.type);
         });
 
-        socket.on("unitAdd", (data) => {
+        this.socket.on("unitAdd", (data:any) => {
             console.log("unitAdd", data);
-            var unit = new DrawableUnit(data.x, data.y, data.unit);
+            const unit = new DrawableUnit(data.x, data.y, data.unit);
             this.map.addUnit(unit);
 
-            if (unit.unitModel.owner == this.myId) { //If my unit
-                if (unit.unitModel.type == "core") {
+            if (unit.unitModel.owner === this.myId) { //If my unit
+                if (unit.unitModel.type === "core") {
                     this.startPos = { x: data.x, y: data.y };
                 }
 
                 this.bounds = this.getBounds(this.myId);
-                this.brushX = data.x
+                this.brushX = data.x;
                 this.brushY = data.y;
                 //brushX = this.bounds.minX;
                 //brushY = this.bounds.minY;
             }
         });
 
-        socket.on("unitRemove", (data) => {
+        this.socket.on("unitRemove", (data:any) => {
             console.log("unitRemove", data);
             this.map.removeUnit(data.unit);
         });
 
-        socket.on("unitUpdate", (data) => {
+        this.socket.on("unitUpdate", (data:any) => {
             console.log("unitUpdate", data);
             this.map.updateUnit(data);
         });
 
-        socket.on("nextUnits", (data) => {
+        this.socket.on("nextUnits", (data:any) => {
             console.log("nextUnits", data);
             this.updateNextUnits(data.nextUnits);
         });
 
-        socket.on("gameEnd", (data) => {
+        this.socket.on("gameEnd", (data:any) => {
             console.log("gameEnd", data);
             this.winner = data.winner;
         });

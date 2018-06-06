@@ -11,7 +11,7 @@ export class SpriteSheet {
     sprites: Common.StringArray<Sprite>;
     img: any;
     animations: Common.StringArray<AnimatedSprite>;
-    variants: IMyType;
+    variants: Common.StringArray<Sprite[]>;
 
     constructor(path: string) {
         this.sprites = {};
@@ -19,7 +19,7 @@ export class SpriteSheet {
         this.readImageFromFile(path + ".png");
         this.readJsonFromFile(path + ".json");
         this.animations = {};
-        //this.variants = [] as MyType;
+        this.variants = {};
     }
 
     get defaultSprite(): Sprite {
