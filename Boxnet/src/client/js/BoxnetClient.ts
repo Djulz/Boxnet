@@ -3,7 +3,8 @@ import * as Common from "../../shared/Common";
 import * as Models from "../../shared/Models";
 import { Point } from "../../shared/DMath";
 import { DrawableUnit } from "./DrawableUnit";
-const sio = require("socket.io-client");
+//const sio = require("socket.io-client");
+import * as sio from "socket.io-client";
 
 enum GameState {
     Login,
@@ -23,7 +24,7 @@ export class BoxnetClient {
 
     map: DrawableMap;
     nextUnits: string[] = [];
-    socket: SocketIO.Socket;
+    socket: SocketIOClient.Socket;
     winner: any = null;
 
     gameState: GameState;

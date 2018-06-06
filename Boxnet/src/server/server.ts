@@ -1,19 +1,29 @@
-var path = require('path');
-var fs = require('fs');
-var express = require('express');
-var app = express();
-var passport = require('passport');
-var ensureLoggedIn = require('connect-ensure-login');
-const mongoose = require('mongoose');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+//var path = require('path');
+import path from "path";
+//var fs = require('fs');
+import fs from "fs";
+//var express = require('express');
+import express from "express";
+const app = express();
+
+//var passport = require('passport');
+import passport from "passport";
+//var ensureLoggedIn = require('connect-ensure-login');
+import ensureLoggedIn from "connect-ensure-login";
+
+//const mongoose = require('mongoose');
+import mongoose from "mongoose";
+//var cookieParser = require('cookie-parser');
+//var bodyParser = require('body-parser');
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 
 import {LobbyHandler} from './game/LobbyHandler';
 import {MessageHandler} from './game/MessageHandler';
 import * as GoogleStrategy from 'passport-google-oauth20';
 import * as LocalStrategy from 'passport-local';
 
-import {Account} from './models/Account';
+import {Account, IAccount} from './models/Account';
 
 //Static
 const publicFolder = path.join(__dirname, './../../client');
@@ -24,9 +34,12 @@ app.use(bodyParser.json({ strict: true, inflate: true }));
 app.use(cookieParser());
 
 //session store
-var session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
-var sessionStore = new MongoStore({ mongooseConnection: mongoose.connection });
+//const session = require('express-session');
+import * as session from "express-session";
+import * as connectMongo from 'connect-mongo';
+console.log(connectMongo);
+const mongoStore = connectMongo(session);
+const sessionStore = new mongoStore({ mongooseConnection: mongoose.connection });
 app.use(session({
     secret: 'IUsuallyLikeBananas',
     store: sessionStore,
@@ -37,30 +50,30 @@ app.use(session({
 passport.use(new GoogleStrategy.Strategy({
     clientID: "632928324174-m8i04urim2qtch6h1b9biu1lrbg3lac3.apps.googleusercontent.com",
     clientSecret: "QPMUHiQC3RhCpSkkRij1OzGH",
-    callbackURL: "http://djulzhass.duckdns.org:41117/auth/google/callback/"
+    callbackURL: "http://djulzhass.duckdns.org:41117/auth/google/callback/",
 },
-    function (accessToken, refreshToken, profile, cb) {
-        findOrCreate({ googleId: profile.id }, profile.displayName, function (err, user) {
+    (accessToken, refreshToken, profile, cb) => {
+        findOrCreate({ googleId: profile.id }, profile.displayName, (err, user) => {
             return cb(err, user);
         });
-    }
+    },
 ));
 
 function findOrCreate(userObject, name, cb) {
     if (userObject == null || isNaN(userObject.googleId))
         cb("UserObject is not valid", userObject);
     else {
-        Account.find({ googleId: userObject.googleId }, function (err, result) {
+        Account.find({ googleId: userObject.googleId }, (err, result) => {
             console.log(result);
             if (err) return cb(err, null);
-            if (result.length == 0) {
+            if (result.length === 0) {
                 console.log(userObject);
-                var p = new Account({
+                const p = new Account({
                     name: name,
                     googleId: userObject.googleId,
                 });
-                p.save(function (err, p) {
-                    if (err) return cb(err, p);
+                p.save((err2, p2:IAccount) => {
+                    if (err2) return cb(err, p2);
                 });
 
                 result = [p];
@@ -72,14 +85,14 @@ function findOrCreate(userObject, name, cb) {
 
 //Passport-local
 passport.use(new LocalStrategy.Strategy(
-    function (username, password, done) {
-        Account.findOne({ name: username }, function (err, user) {
+    (username, password, done) => {
+        Account.findOne({ name: username }, (err, user) => {
             if (err) { return done(err); }
             if (!user) { return done(null, false); }
             //if (!user.verifyPassword(password)) { return done(null, false); }
             return done(null, user);
         });
-    }
+    },
 ));
 
 // function findAccount(userObject, cb) {
@@ -87,14 +100,14 @@ passport.use(new LocalStrategy.Strategy(
 //     if(Account.findOne({name:userObject.username}))
 // }
 
-passport.serializeUser(function (user, cb) {
+passport.serializeUser((user, cb) => {
     //console.log("ser", user);
     cb(null, user);
 });
 
-passport.deserializeUser(function (obj, cb) {
+passport.deserializeUser((obj, cb) => {
     //console.log("des", obj);
-    cb(null, obj);//{ firstName: 'Foo', lastName: 'Bar' });
+    cb(null, obj); //{ firstName: 'Foo', lastName: 'Bar' });
 });
 
 //SSL
@@ -107,13 +120,12 @@ passport.deserializeUser(function (obj, cb) {
 //    passphrase: "SuE89p91F1rad"
 //};
 
-
 //DB
 mongoose.connect('mongodb://192.168.0.105/boxnet');
 
-var db = mongoose.connection;
+const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function () {
+db.once('open', () => {
     // we're connected!
     console.log("connected");
 
@@ -121,20 +133,18 @@ db.once('open', function () {
 
 });
 
-
-var http = require('http').Server(app);
+//const http = require('http').Server(app);
+import * as httpImp from "http";
+const http = new httpImp.Server(app);
 //var https = require('https').Server(httpsOptions, app);
-var io = require('socket.io')(http);
+import sio from "socket.io";
+const io = sio(http);
 
 //var appSecure = express.createServer(httpsOptions);
 
-
-
-
-
 //app.use(session({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
 
-var passportSocketIo = require("passport.socketio");
+import * as passportSocketIo from "passport.socketio";
 io.use(passportSocketIo.authorize({ //configure socket.io
     cookieParser: cookieParser,
     secret: 'IUsuallyLikeBananas',    // make sure it's the same than the one you gave to express
@@ -146,21 +156,21 @@ io.use(passportSocketIo.authorize({ //configure socket.io
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get('/', function (req, res) {
+app.get('/', (req, res) => {
     if (req.isAuthenticated())
         res.redirect('/game');
     else
         res.redirect('/login');
 });
 
-app.get('/game', function (req, res) {
+app.get('/game', (req, res) => {
     if (req.isAuthenticated())
         res.sendFile(path.join(publicFolder, 'game.html'));
     else
         res.redirect('/login');
 });
 
-app.get('/login', function (req, res) {
+app.get('/login', (req, res) => {
     res.sendFile(path.join(publicFolder, 'login.html'));
 });
 
@@ -169,7 +179,7 @@ app.get('/auth/google',
 
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
-    function (req, res) {
+    (req, res) => {
         // Successful authentication, redirect home.
         console.log("google login success");
         res.redirect('/game');
@@ -177,35 +187,32 @@ app.get('/auth/google/callback',
 
 app.post('/auth/password',
     passport.authenticate('local', { failureRedirect: '/login' }),
-    function (req, res) {
+    (req, res) => {
         console.log("password login success");
         res.redirect('/game');
     });
 
-
 app.get('/profile',
-    function (req, res) {
+    (req, res) => {
         if (req.isAuthenticated()) {
             console.log("profile");
             res.status(200).send(req.user.name);
-        }
-        else {
+        } else {
             res.sendStatus(403);
         }
     });
 
-http.listen(41117, function () {
+http.listen(41117, () => {
     console.log('listening on *:41117');
 });
 
+const lobbyHandler = new LobbyHandler(100);
+const messageHandler = new MessageHandler(lobbyHandler);
 
-var lobbyHandler = new LobbyHandler(100);
-var messageHandler = new MessageHandler(lobbyHandler);
-
-app.get('/info', function (req, res) {
+app.get('/info', (req, res) => {
     //res.sendFile(__dirname + '/index.html');
-    var lobbies = [];
-    for (var l in lobbyHandler.lobbies)
+    const lobbies = [];
+    for (const l in lobbyHandler.lobbies)
         lobbies.push({ name: l, players: lobbyHandler.lobbies[l].players.map(x => x.name) });
 
     res.setHeader('Content-Type', 'application/json');
@@ -226,7 +233,7 @@ function onAuthorizeFail(data, message, error, accept) {
     accept(null, false);
 }
 
-io.on('connection', function (socket) {
+io.on('connection', (socket) => {
     console.log("hi", socket.request.user.name);
     socket.emit('accountData', { name: socket.request.user.name });
     messageHandler.onConnect(socket);
