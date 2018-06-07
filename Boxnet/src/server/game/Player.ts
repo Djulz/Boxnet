@@ -1,41 +1,43 @@
 import { Socket } from "socket.io";
-import { Unit, createUnit } from "./Unit";
+import { Unit } from "./Unit";
 import { IAccount } from "./../models/Account";
 import { Lobby } from "./Lobby";
 import * as Models from "./../../shared/Models";
 import * as Common from "./../../shared/Common";
+import { PlayerGameData } from "./PlayerGameData";
+import { Faction, Batch } from "./Faction";
+import { SandPeople } from "./factions/SandPeople";
 
 // var Models = require('./../public/js/models/Models');
 // var Common = require('./Common');
 
 export class Player {
-    socket:Socket;
-    account:IAccount;
-    playerStartX:number;
-    playerStartY:number;
-    bIsLoading:boolean;
-    bIsReady:boolean;
-    lobbyPlayerId:number;
-    nextUnits:string[];
-    cores:Unit[];
-    cooldown:number;
-    startingUnit:Unit;
-    lobby:Lobby;
+    socket: Socket;
+    account: IAccount;
+    playerStartX: number;
+    playerStartY: number;
+    bIsLoading: boolean;
+    bIsReady: boolean;
+    gameData: PlayerGameData;
+    lobby: Lobby;
 
-    constructor(socket:Socket, account:IAccount) {
+    constructor(socket: Socket, account: IAccount) {
         this.socket = socket;
         this.account = account;
         this.bIsLoading = false;
         this.bIsReady = false;
-        this.lobbyPlayerId = -1;
-        this.nextUnits = [];
-        this.rollNextUnits(5);
-        this.cores = [];
-        this.cooldown = 0;
-        this.startingUnit = createUnit("core");
+        this.gameData = null;
     }
 
-    disconnect(msg:string) {
+    get lobbyPlayerId() {
+        return this.gameData === null ? -1 : this.gameData.playerId;
+    }
+
+    initGame(lobbyPlayerId: number) {
+        this.gameData = new PlayerGameData(lobbyPlayerId, SandPeople());
+    }
+
+    disconnect(msg: string) {
         console.log("Disconnect:", this.account.name, msg);
         this.socket.disconnect();
     }
@@ -45,7 +47,7 @@ export class Player {
         console.log("Reconnect:", this.account.name);
     }
 
-    setStartPos(x:number, y:number) {
+    setStartPos(x: number, y: number) {
         this.playerStartX = x;
         this.playerStartY = y;
     }
@@ -54,44 +56,35 @@ export class Player {
         return this.socket.id;
     }
 
-    emit(str:string, data:any) {
+    emit(str: string, data: any) {
         //console.log("sending", str);
         this.socket.emit(str, data);
     }
 
     get Model() {
-        return new Models.PlayerModel(this.name, "Nomads", this.lobbyPlayerId);
+        return new Models.PlayerModel(this.name, this.gameData.faction.name, this.lobbyPlayerId);
     }
 
-    onInputAddUnit() {
-        this.cooldown = 5000;
-    }
-
-    update(ms:number) {
-        this.cooldown -= ms;
-    }
-
-    getNextUnit() {
-        const unitType = this.nextUnits.shift();
-        const unit = createUnit(unitType);
-        this.rollNextUnits(5);
-        return unit;
-    }
-
-    rollNextUnits(n:number) {
-        while (this.nextUnits.length < n) {
-
-            const unit = Common.randomObjectInArray(["grower", "shooter", "tunneler", "quaker"]);
-            this.nextUnits.push(unit);
+    onInputAddUnit(x: number, y: number, dir: Common.Direction): void {
+        if (this.gameData.onInputAddUnit()) {
+            this.lobby.game.addNextUnit(x, y, dir, this);
+            this.emit("nextUnits", {
+                nextUnits: this.gameData.nextUnits,
+                cooldown: this.gameData.cooldown,
+            });
         }
     }
 
-    addCore(unit:Unit) {
-        this.cores.push(unit);
+    update(ms: number) {
+        this.gameData.update(ms);
     }
 
-    get IsAlive() {
-        return this.cores.some(x => x.IsAlive);
+    addCore(unit: Unit) {
+        this.gameData.addCore(unit);
+    }
+
+    get IsAlive(): boolean {
+        return this.gameData.IsAlive;
     }
 
 }

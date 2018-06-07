@@ -1,6 +1,7 @@
 import { Player } from "./Player";
 import { Game } from "./Game";
 import { TileMap } from "./Map";
+import { Unit } from "./Unit";
 
 enum LobbyState {
     Lobby,
@@ -29,7 +30,7 @@ export class Lobby {
 
     addPlayer(player: Player, account: Account) {
         console.log("addplayer");
-        player.lobbyPlayerId = this.getEmptyId();
+        player.initGame(this.getEmptyId());
         player.setStartPos(this.game.map.startPoints[player.lobbyPlayerId].x, this.game.map.startPoints[player.lobbyPlayerId].y);
         player.lobby = this;
         //socket.join(this.name);
@@ -54,21 +55,13 @@ export class Lobby {
 
     onInput(player: Player, data: any) {
         console.log("input data", data);
-        if (player.cooldown <= 0) {
-            player.onInputAddUnit();
-            this.game.addNextUnit(data.x, data.y, data.dir, player);
-            player.emit("nextUnits", {
-                nextUnits: player.nextUnits,
-                cooldown: player.cooldown,
-            });
-        } else
-            console.log("cooldown");
+        this.game.onInput(player, data);
     }
 
     onLoad() {
         //Add starting units
         for (const p of this.players) {
-            const core = this.game.addUnit(p.playerStartX, p.playerStartY, 0, p, p.startingUnit);
+            const core = this.game.addUnit(p.playerStartX, p.playerStartY, 0, p, Unit.createUnit(p.gameData.faction.startingUnit));
             p.addCore(core);
         }
 
@@ -76,7 +69,7 @@ export class Lobby {
             p.emit("loading", { playerId: p.lobbyPlayerId });
             p.emit("loadingData", {
                 map: this.game.map.Model,
-                nextUnits: p.nextUnits,
+                nextUnits: p.gameData.nextUnits,
             });
         }
     }

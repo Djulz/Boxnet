@@ -65,6 +65,21 @@ export abstract class Unit {
     get Model() {
         return new Models.UnitModel(this.name, this.id, this.owner.lobbyPlayerId, this.hp);
     }
+
+    static createUnit(type:string):Unit {
+        switch (type) {
+            case "grower":
+                return new Grower("circle", "sand", 5, 100);
+            case "shooter":
+                return new Shooter(10, 10, 1000);
+            case "core":
+                return new Core();
+            case "tunneler":
+                return new Tunneler(5, 1000);
+            case "quaker":
+                return new Quaker(5, 1000, 10);
+        }
+    }
 }
 
 class Grower extends Unit {
@@ -263,7 +278,7 @@ class Tunneler extends Ticker {
         } else if (this.tilesTunneled > 0) {
             //Reached dest
             const unit = this.tile.map.game.addUnit(this.currentTile.x, this.currentTile.y,
-                this.dir, this.owner, createUnit("tunneler")) as Tunneler;
+                this.dir, this.owner, Unit.createUnit("tunneler")) as Tunneler;
             unit.otherEnd = this;
             this.otherEnd = unit;
         }
@@ -299,17 +314,4 @@ class Core extends Unit {
     }
 }
 
-export function createUnit(type:string):Unit {
-    switch (type) {
-        case "grower":
-            return new Grower("circle", "sand", 5, 100);
-        case "shooter":
-            return new Shooter(10, 10, 1000);
-        case "core":
-            return new Core();
-        case "tunneler":
-            return new Tunneler(5, 1000);
-        case "quaker":
-            return new Quaker(5, 1000, 10);
-    }
-}
+

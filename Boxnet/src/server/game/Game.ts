@@ -5,19 +5,19 @@ import { Unit } from "./Unit";
 import { Direction } from "./../../shared/Common";
 
 class GameEvent {
-    event:string;
-    data:object;
+    event: string;
+    data: object;
 }
 
 export class Game {
-    map :TileMap;
-    lobby:Lobby;
-    events:GameEvent[];
-    tick:number;
-    isRunning :boolean;
-    winner:Player;
+    map: TileMap;
+    lobby: Lobby;
+    events: GameEvent[];
+    tick: number;
+    isRunning: boolean;
+    winner: Player;
 
-    constructor(lobby:Lobby, map:TileMap) {
+    constructor(lobby: Lobby, map: TileMap) {
         this.map = map;
         this.map.game = this;
         this.lobby = lobby;
@@ -26,7 +26,7 @@ export class Game {
         this.isRunning = true;
     }
 
-    update(players:Player[], ms:number) {
+    update(players: Player[], ms: number) {
 
         if (this.isRunning) {
             this.map.update(ms);
@@ -50,26 +50,30 @@ export class Game {
         this.tick++;
     }
 
-    onGameEnd(winner:Player) {
+    onGameEnd(winner: Player) {
         this.isRunning = false;
         this.winner = winner;
         console.log("game has ended, winner", this.winner.name);
     }
 
-    onEvent(event:string, data:any) {
+    onEvent(event: string, data: any) {
         this.events.push({ event: event, data: data });
     }
 
-    onUnitDied(unit:Unit) {
+    onUnitDied(unit: Unit) {
         this.map.removeUnit(unit);
     }
 
-    addNextUnit(x:number, y:number, dir:Direction, owner:Player) {
-        const unit = owner.getNextUnit();
+    addNextUnit(x: number, y: number, dir: Direction, owner: Player): Unit {
+        const unit = owner.gameData.getNextUnit();
         return this.map.addUnit(x, y, dir, unit, owner);
     }
 
-    addUnit(x:number, y:number, dir:Direction, owner:Player, unit:Unit) {
+    addUnit(x: number, y: number, dir: Direction, owner: Player, unit: Unit): Unit {
         return this.map.addUnit(x, y, dir, unit, owner);
+    }
+
+    onInput(player: Player, data: any): any {
+        player.onInputAddUnit(data.x, data.y, data.dir);    
     }
 }
